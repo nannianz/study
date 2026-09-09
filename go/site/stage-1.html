@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>阶段 1 · 语法基础 — Go 从零学习</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<nav class="sidebar">
+  <a class="brand" href="index.html">Go 从零学习<span>JS 背景 → 满足后台开发要求</span></a>
+  <ol class="nav">
+    <li><a href="index.html">总览 · 学习计划</a></li>
+    <li><details>
+      <summary><a href="stage-0.html">阶段 0 · 环境搭建</a><em class="st done">完成</em></summary>
+      <ul class="sub">
+        <li><a href="stage-0.html#checklist">章节清单</a></li>
+        <li><a href="stage-0.html#trouble">排障实录</a></li>
+      </ul>
+    </details></li>
+    <li><details open>
+      <summary><a class="active" href="stage-1.html">阶段 1 · 语法基础</a><em class="st done">完成</em></summary>
+      <ul class="sub">
+        <li><a href="stage-1.html#checklist">章节清单</a></li>
+        <li><a href="stage-1.html#l1">第一课 · 变量与类型</a></li>
+        <li><a href="stage-1.html#l2">第二课 · 常量与运算符</a></li>
+        <li><a href="stage-1.html#supp">补充 · 条件循环函数</a></li>
+      </ul>
+    </details></li>
+    <li><details>
+      <summary><a href="stage-2.html">阶段 2 · 核心数据结构</a><em class="st doing">进行中</em></summary>
+      <ul class="sub">
+        <li><a href="stage-2.html#checklist">章节清单</a></li>
+        <li><a href="stage-2.html#l1">第一课 · 数组与切片</a></li>
+        <li><a href="stage-2.html#l2">第二课 · map 与 range</a></li>
+        <li><a href="stage-2.html#l3">第三课 · 结构体</a></li>
+        <li><a href="stage-2.html#l4">第四课 · 指针与转换</a></li>
+      </ul>
+    </details></li>
+    <li><details>
+      <summary><a href="stage-3.html">阶段 3 · 方法接口与错误处理</a></summary>
+      <ul class="sub">
+        <li><a href="stage-3.html#checklist">章节清单</a></li>
+        <li><a href="stage-3.html#l1">第一课 · 方法与组合</a></li>
+        <li><a href="stage-3.html#l2">第二课 · 接口与断言</a></li>
+        <li><a href="stage-3.html#l3">第三课 · 错误处理</a></li>
+        <li><a href="stage-3.html#l4">第四课 · 泛型·递归·正则</a></li>
+      </ul>
+    </details></li>
+    <li><details>
+      <summary><a href="stage-4.html">阶段 4 · 并发</a></summary>
+      <ul class="sub">
+        <li><a href="stage-4.html#checklist">章节清单</a></li>
+        <li><a href="stage-4.html#l1">第一课 · goroutine 与 channel</a></li>
+        <li><a href="stage-4.html#l2">第二课 · sync 与 select</a></li>
+      </ul>
+    </details></li>
+    <li><details>
+      <summary><a href="stage-5.html">阶段 5 · 工程化</a></summary>
+      <ul class="sub">
+        <li><a href="stage-5.html#checklist">章节清单</a></li>
+        <li><a href="stage-5.html#l1">第一课 · 包·模块·文件</a></li>
+        <li><a href="stage-5.html#l2">第二课 · 单元测试</a></li>
+      </ul>
+    </details></li>
+    <li><details>
+      <summary><a href="stage-6.html">阶段 6 · Web 后台实战</a></summary>
+      <ul class="sub">
+        <li><a href="stage-6.html#checklist">章节清单</a></li>
+        <li><a href="stage-6.html#l1">第一课 · net/http 裸写</a></li>
+        <li><a href="stage-6.html#l2">第二课 · gin 框架</a></li>
+        <li><a href="stage-6.html#l3">第三课 · gorm ORM</a></li>
+        <li><a href="stage-6.html#l4">第四课 · 分层与毕业作品</a></li>
+      </ul>
+    </details></li>
+    <li><details>
+      <summary><a href="stage-7.html">阶段 7 · 精读 smb</a></summary>
+      <ul class="sub">
+        <li><a href="stage-7.html#checklist">章节清单</a></li>
+        <li><a href="stage-7.html#l1">第一课 · fx 依赖注入</a></li>
+        <li><a href="stage-7.html#l2">第二课 · 泛型仓储精读</a></li>
+        <li><a href="stage-7.html#l3">第三课 · casbin 与 MQTT</a></li>
+        <li><a href="stage-7.html#l4">第四课 · 毕业精读</a></li>
+      </ul>
+    </details></li>
+  </ol>
+</nav>
+<main>
+  <h1>阶段 1 · 语法基础</h1>
+  <p class="sub">目标：能写变量、常量、分支、循环、函数，理解静态类型思维。<span class="chip done">已完成 · 2026-09-04 结业</span></p>
+
+  <h2 id="checklist">章节 checklist</h2>
+  <ul class="tasks">
+    <li class="done">基础语法（ch6）：标记、行分隔、注释、标识符</li>
+    <li class="done">数据类型（ch7）：bool / 整型浮点 / string / rune</li>
+    <li class="done">变量（ch8）：var、:=、多重赋值、匿名变量 _</li>
+    <li class="done">常量（ch9）：const、iota</li>
+    <li class="done">运算符（ch10）：算术/关系/逻辑/位/赋值/优先级</li>
+    <li class="done">条件语句（ch11）：if（可带初始化语句）、switch（默认 break、可无表达式）</li>
+    <li class="done">循环语句（ch12）：for 三种形态、for range、break/continue/goto</li>
+    <li class="done">函数（ch13）：参数、多返回值、可变参数、匿名函数/闭包</li>
+    <li class="done">变量作用域（ch14）：局部/全局、块作用域<span class="note">2026-09-04 结业：ch6~10 走讲义两课 + ASI 答疑，ch11~14 runoob 自学；练习合并为自建 code/00-hello、01-variables_and_basic_types。</span></li>
+  </ul>
+
+  <h2>JS 对照重点</h2>
+  <div class="callout js">
+    <b>JS 对照</b>
+    <p><b>静态类型 vs 动态类型</b>：Go 编译期就报类型错误，JS 运行时才知道；写 Go 时「先想类型再写代码」。</p>
+    <p><code>var/const/:=</code> vs <code>var/let/const</code>：<code>:=</code> 是「声明+推断类型」的简写，只能用在函数内。</p>
+    <p><b>string 是字节序列</b>：<code>len("中")</code> 是 3（UTF-8 字节数）；取「字符」要转 <code>[]rune</code>。接上 <code>f/1.js</code> 的 <code>"中".length</code> 实验——JS 的 length 数 UTF-16 码元，两边的「长度」都不是直觉的字符数。</p>
+    <p><b>for 是唯一循环</b>：while / do-while / for-in / for-of 全是 for 的变体。</p>
+    <p>switch 默认 break；case 不需要是常量。</p>
+    <p><b>多返回值</b> vs JS 返回数组再解构：Go 的 <code>(result, err)</code> 是语言级能力。</p>
+    <p>没有默认参数；有可变参数 <code>...</code>（≈ JS rest 参数）。</p>
+  </div>
+
+  <h2>back 对照</h2>
+  <div class="callout back">
+    <b>back 真实代码</b>
+    <p><code>D:\project\back\smb\smb_server\cmd\boot.go</code>：真实项目入口的函数调用与写法。</p>
+    <p>全 back 通用模式 <code>if err != nil { return err }</code> 初见（阶段 3 细讲）。</p>
+  </div>
+
+  <h2>练习规划</h2>
+  <div class="callout ex">
+    <b>练习</b>
+    <p><code>code/00-hello/</code>、<code>code/01-variables_and_basic_types/</code> ✅（用户自建并合并完成，2026-09-04 验收）</p>
+  </div>
+
+  <h2 id="l1">第一课 · 变量与基本类型</h2>
+  <p class="sub">覆盖 ch6（基础语法）、ch7（数据类型）、ch8（变量）。练习落在 code/02-types/。</p>
+
+  <h3>0. 先换挡：从「动态」到「静态」</h3>
+  <p>JS 里变量是个盒子，想装什么装什么：</p>
+  <pre><code>let a = 1
+a = "hello"   // 没问题，类型运行时才管</code></pre>
+  <p>Go 里变量是个<b>贴了类型标签的盒子</b>，出生那天标签就焊死了：</p>
+  <pre><code>a := 1
+a = "hello"   // 编译直接报错：cannot use "hello" (untyped string) as int</code></pre>
+  <p>这不是 Go 古板，是它的核心契约：<b>所有类型错误在编译期暴露</b>，跑到线上的代码不会有 <code>undefined is not a function</code> 这类惊喜。在 smb 项目里 Ctrl+S 保存时编辑器秒报错，就是这套机制在干活。</p>
+
+  <div class="callout js">
+    <b>JS 对照 · 行尾分号去哪了（2026-09-02 随堂答疑）</b>
+    <p>写完一行发现分号「加不上」——是 Trae 的 gopls 保存时自动跑 gofmt 把它删了。<b>对代码零影响</b>：Go 编译器有自动分号插入（ASI）——行尾最后是标识符/字面量/<code>)</code> <code>]</code> <code>}</code>/<code>++</code>/<code>--</code> 或 return/break 等关键字时，编译器自动补分号。</p>
+    <p>JS 也有 ASI，但社区一半人坚持写分号（有 <code>return</code> 换行坑）；Go 反转文化：所有人都不写，gofmt 强制删。</p>
+    <p>分号真正必需的三处：① for 三段式 <code>for i := 0; i &lt; 10; i++</code> ② 一行多条语句 <code>a := 1; b := 2</code> ③ 一行写完 if 体 <code>if ok { do(); return }</code>。</p>
+    <p><b>易踩坑</b>：大括号必须跟在行尾。把 <code>{</code> 另起一行（某些 JS 风格），行尾会被自动插分号截断 if → 语法错误。报错长得离谱时先查大括号位置。</p>
+  </div>
+
+  <h3>1. 声明变量的三种姿势</h3>
+  <pre><code>var name string = "smb"   // ① 完整版：手动写类型
+var name2 = "smb"         // ② 省类型：编译器自己推断
+name3 := "smb"            // ③ 短声明：声明+推断+赋值三合一，日常 90% 用它</code></pre>
+  <div class="callout js">
+    <b>JS 对照</b>
+    <p><code>let x = 1</code> ≈ <code>x := 1</code>——写法几乎一样，但 JS 的 x 以后能换类型，Go 的不能。</p>
+    <p><code>:=</code> <b>只能在函数内部用</b>；包级别（函数外）只能用 <code>var</code>。</p>
+    <p><code>:=</code> 是「声明新变量」，给已有变量赋值用 <code>=</code>——两者搞混是新手第一大报错来源。</p>
+  </div>
+
+  <h3>2. 声明了不用 = 编译错误</h3>
+  <p>Go 的著名洁癖：</p>
+  <pre><code>x := 1        // 后面没用 x → 编译失败：declared and not used</code></pre>
+  <p>JS 里声明不用顶多被 ESLint 骂一句，Go 直接不让你编译。目的：杜绝「死变量」，读代码时每个变量都必然有用。</p>
+
+  <h3>3. 零值（Go 版的 undefined）</h3>
+  <p>JS 变量没赋值是 <code>undefined</code>；Go 里<b>每种类型都有确定的零值</b>，永远不存在 undefined：</p>
+  <pre><code>var i int       // 0
+var s string    // ""（空字符串，不是 null！）
+var b bool      // false</code></pre>
+
+  <h3>4. 基本类型对照表</h3>
+  <table>
+    <tr><th>Go</th><th>JS</th><th>备注</th></tr>
+    <tr><td><code>string</code></td><td><code>string</code></td><td>都不可变；但 Go 的 len 数的是<b>字节</b></td></tr>
+    <tr><td><code>bool</code></td><td><code>boolean</code></td><td><b>没有 truthy/falsy</b>！</td></tr>
+    <tr><td><code>int</code> / <code>float64</code></td><td><code>number</code></td><td>Go 把整数和浮点分开家</td></tr>
+    <tr><td><code>rune</code></td><td>无对应</td><td>一个 Unicode 码点，本质是 int32</td></tr>
+    <tr><td><code>byte</code></td><td>无对应</td><td>一个字节，本质是 uint8</td></tr>
+  </table>
+
+  <div class="callout pit">
+    <b>易踩坑 ×2</b>
+    <p><b>坑 1：没有隐式类型转换。</b>JS 里 <code>1 + 1.5</code>、<code>"1" + 1</code> 随便混（然后喜提 "11"）；Go 里 int 和 float64 相加都要显式转换：<code>float64(i) + 1.5</code>。另埋一颗雷：<code>string(65)</code> 得到的不是 "65" 而是字符 "A"（它把 65 当 Unicode 码点转了），数字转字符串要用 <code>strconv.Itoa(65)</code>。</p>
+    <p><b>坑 2：bool 没有 truthy。</b><code>if 1 {</code> 在 Go 里直接编译错误。JS 面试最爱考的 <code>if("0")</code> 为 true 之类的题，在 Go 里<b>不存在</b>——条件必须是货真价实的 bool。</p>
+  </div>
+
+  <h3>5. string 与 rune：1.js 的续集</h3>
+  <div class="callout js">
+    <b>JS 对照</b>
+    <p><code>f/1.js</code> 里验证过 JS 的 <code>"中".length === 1</code>（UTF-16 码元数）。Go 这边：</p>
+    <pre><code>len("中")            // 3 —— UTF-8 字节数（中文每字 3 字节）
+len("中国")          // 6
+len("a")             // 1
+len([]rune("中国"))   // 2 —— 转成码点数组后才是「字符数」</code></pre>
+    <p>一句话：<b>Go 的 <code>len(string)</code> 永远是字节数，想要「字符数」先转 <code>[]rune</code></b>。JS 的 length 数码元、Go 的 len 数字节——两边都不是人类直觉的「字数」，但 Go 的规则更简单粗暴。</p>
+  </div>
+
+  <h3>6. 看真项目怎么写（smb · sitecontroller.go）</h3>
+  <div class="callout back">
+    <b>back 真实代码</b>
+    <p>smb 项目「更新站点」接口的真实代码（原样摘录）：</p>
+    <pre><code>func (sc *SiteController) UpdateSite(g *gin.Context) {
+    requestID := g.GetHeader("X-Request-Id")   // := 短声明，全项目最主流写法
+    userID := g.GetHeader("X-User-Id")         // 推断为 string
+    siteID := g.Param("site_id")
+
+    reqJson, _ := json.Marshal(req)            // 两个返回值，_ 表示「第二个我不要」
+
+    if userID == "" {                          // 空字符串判断（零值 "" 的实际用途）
+        ...
+    }
+}</code></pre>
+    <p>四行代码用到了本课四个知识点：<code>:=</code>、类型推断、<code>_</code> 空标识符、string 零值 <code>""</code>。</p>
+    <p>另一个真实细节——同一文件里也有 <code>=</code> 的身影：</p>
+    <pre><code>part = strings.TrimSpace(part)   // part 已经存在，这里只是重新赋值 → 用 =</code></pre>
+  </div>
+
+  <h3>7. 练习（6 个任务）</h3>
+  <div class="callout ex">
+    <b>练习 · code/02-types/main.go</b>
+    <p>先建目录：<code>mkdir F:\MY\study\go\code\02-types</code>，然后新建 main.go，<b>自己写</b>出以下任务（参考讲义示例，别复制整块）：</p>
+    <ol>
+      <li>用三种姿势各声明一个 string 变量，打印出来</li>
+      <li>零值实验：<code>var i int</code>、<code>var s string</code>、<code>var b bool</code> 不赋值直接打印，亲眼看 0 / (空) / false</li>
+      <li>类型铁笼实验：<code>a := 1</code> 然后 <code>a = "hello"</code>，跑一下<b>看报错长什么样</b>（看完改回来）</li>
+      <li>洁癖实验：声明 <code>unused := 1</code> 不使用，看报错（看完删掉）</li>
+      <li>长度实验：打印 <code>len("中")</code>、<code>len("中国")</code>、<code>len("中国abc")</code>、<code>len([]rune("中国abc"))</code></li>
+      <li>truthy 实验：写 <code>if 1 {</code> 看报错（看完删掉）</li>
+    </ol>
+    <p><b>完成标准</b>：<code>go run .\code\02-types</code> 跑通，且能回答两个思考题——</p>
+    <p>① Go 为什么坚持「声明不用就报错」？<br>② <code>len("中国abc")</code> 是多少？<code>len([]rune("中国abc"))</code> 又是多少？为什么不等？</p>
+  </div>
+
+  <h2 id="l2">第二课 · 常量、iota 与运算符</h2>
+  <p class="sub">覆盖 ch9（常量）、ch10（运算符），并揭晓第一课埋的 <code>string(65)="A"</code> 之坑。</p>
+
+  <h3>1. const：编译期就定死的值</h3>
+  <pre><code>const Pi = 3.14159
+const AppName = "smb"</code></pre>
+  <div class="callout js">
+    <b>JS 对照</b>
+    <p><b>相同点</b>：都叫 const、都不能重新赋值。</p>
+    <p><b>不同点</b>：JS 的 const 是「<b>绑定</b>不可变」——<code>const arr = []; arr.push(1)</code> 完全合法，锁的是变量名与值的指向；Go 的 const 是「<b>值</b>不可变」，且值必须在<b>编译期</b>就能算出来。</p>
+    <p><b>易踩坑</b>：JS 里 <code>const x = Date.now()</code> 可以（运行时求值）；Go 里 <code>const x = time.Now().Unix()</code> 直接编译报错——函数调用是运行时行为，const 装不下，得用 var。</p>
+  </div>
+
+  <h3>2. iota：Go 的枚举器</h3>
+  <p>const 块里的行计数器：第一行为 0，往下每行 +1：</p>
+  <pre><code>const (
+    Monday = iota   // 0
+    Tuesday         // 1（省略表达式 = 重复上一行的 iota 表达式）
+    Wednesday       // 2
+)</code></pre>
+  <div class="callout js">
+    <b>JS 对照</b>
+    <p>JS 没有原生枚举，常见手搓：<code>const Week = { Monday: 0, Tuesday: 1 }</code> 或 TS 的 <code>enum</code>。Go 的 iota 就是官方内置的计数器方案，少写重复的 <code>= 0, = 1, = 2</code>。</p>
+    <p><b>易踩坑</b>：iota 只在 const 块里有意义；想跳号用 <code>_</code> 占位。</p>
+  </div>
+
+  <h3>3. 看真项目：back 里的两种常量写法</h3>
+  <div class="callout back">
+    <b>back 真实代码 ×2</b>
+    <p><b>写法一：iota 枚举</b>——<code>smb_server/internal/security/securityerror/error.go</code>，安全模块的错误类别：</p>
+    <pre><code>const (
+    AuthorizationFail  = iota //认证或者授权失败
+    NoPermission              //没有权限
+    NeedLogin                 //没有登录
+    CaptchaExpire             //验证码缺失
+    CaptchaError              //验证码不正确
+    MultipleAut               //多次认证，休息5分钟
+    AccountDisable            //账号被禁用
+    AccountNoExist            //账号不存在
+    ...
+)</code></pre>
+    <p><b>写法二：类型化常量</b>——<code>smb/pkg/errcode/error.go</code>，全站错误码（<code>ErrCode</code> 是自定义类型，本质 int64）：</p>
+    <pre><code>type ErrCode int64
+
+const (
+    Success ErrCode = 0 // Operate Success
+
+    UnknownError       ErrCode = 90001 // Unknown Error
+    ServerError        ErrCode = 90002 // Internal Server Error
+    ParamBindError     ErrCode = 90003 // Parameter Error
+    UnAuthorized       ErrCode = 90004 // Unauthorized
+    DataNotFound       ErrCode = 90007 // Data NOT found
+    ...
+)</code></pre>
+    <p>眼熟吗？第一课看过的 controller 代码 <code>pkg.RetJSON(g, errcode.ParamBindError, nil)</code> 里的 <code>ParamBindError</code> 就是从这个 const 块来的。注意这里的取舍：<b>错误码显式写死数值而不用 iota</b>——因为注释里明确说「已发布的 ErrCode 不能修改，会导致前端出错」，自动编号在插行时会整体错位，显式值才稳定。</p>
+  </div>
+
+  <h3>4. 运算符：九分像，三个坑</h3>
+  <p><code>+ - * / % == != &lt; &gt; &amp;&amp; || !</code> 与 JS 基本一致，逻辑运算符同样短路。坑在这三处：</p>
+  <div class="callout pit">
+    <b>易踩坑 ×3</b>
+    <p><b>坑 1：<code>++</code>/<code>--</code> 是语句不是表达式</b>。<code>x++</code> 可以；<code>y := x++</code> 编译报错；也没有 <code>++x</code> 前缀写法。JS 里 <code>arr[i++]</code> 这类写法到 Go 全部要拆成两行。</p>
+    <p><b>坑 2：没有三元运算符 <code>?:</code></b>。<code>cond ? a : b</code> 只能老老实实写 if-else。官方理由：嵌套三元是可读性杀手。</p>
+    <p><b>坑 3：字符串 + 只能拼字符串</b>。JS 的 <code>"a" + 1</code> 得 "a1"；Go 里 <code>"a" + 1</code> 直接编译报错，要先 <code>strconv.Itoa(1)</code> 转成字符串——Go 不做任何隐式转换，字符串拼接也不例外。</p>
+  </div>
+
+  <h3>5. 揭晓：string(65) 为什么是 "A"</h3>
+  <p>Go 的类型转换 <code>T(v)</code> 语义是「把 v 的值按 T 类型的含义重新解释」，而 <code>string</code> 遇到整数时的含义是「<b>Unicode 码点 → 字符</b>」（因为 rune 本质就是 int32）：</p>
+  <pre><code>string(65)          // "A"   —— 65 号码点对应的字符
+string(20013)       // "中"  —— 20013 是 "中" 的码点
+strconv.Itoa(65)    // "65"  —— 整数 → 十进制文本（人话转换）
+strconv.Atoi("65")  // 65    —— 反向：文本 → 整数</code></pre>
+  <div class="callout js">
+    <b>JS 对照</b>
+    <p>JS 的 <code>String(65)</code> 永远给你 "65"（ ToString 规则，总说人话）；Go 的 <code>string(65)</code> 却按码点查表。<b>数字转字符串，无脑用 strconv.Itoa</b>，把 string(数字) 留给「我知道这是码点」的场景。</p>
+  </div>
+
+  <h3>6. 练习（追加进 code/02-types）</h3>
+  <div class="callout ex">
+    <b>练习 · 继续写在 code/02-types/main.go</b>
+    <ol start="7">
+      <li>const 实验：声明 <code>const Pi = 3.14</code>，尝试 <code>Pi = 3</code> 看报错；再试 <code>const t = time.Now()</code> 看报错（需要 import "time"）</li>
+      <li>iota 实验：用 iota 定义周一到周日，打印 <code>Wednesday</code> 的值</li>
+      <li>转换实验：打印 <code>string(65)</code>、<code>string(20013)</code>、<code>strconv.Itoa(65)</code>（import "strconv"），亲眼看四种结果</li>
+      <li>运算符实验：<code>x := 1; x++</code> 后打印；再试 <code>y := x++</code> 看报错（看完删掉）</li>
+    </ol>
+  </div>
+
+  <h3>下一课预告</h3>
+  <p class="sub">条件与循环（ch11/ch12）：if 带初始化语句、switch 的四种形态、for 一统天下——对照 net_scan 里的真实分支代码。</p>
+
+  <h2 id="supp">补充讲义 · 条件、循环与函数 <span class="chip done">已自学 · 参考版</span></h2>
+  <p class="sub">ch11~14 于 2026-09-04 以 runoob 自学完成，本节为对照参考版讲义，随用随查。</p>
+
+  <h3>if 带初始化语句：Go 特色</h3>
+  <pre><code>if v, err := strconv.Atoi("42"); err != nil {
+    // 出错分支
+} else {
+    // v 只在 if/else 块内可见！
+}</code></pre>
+  <p>声明和判断一行搞定，v、err 的作用域被锁在 if 块内——JS 没有这个语法，最接近的写法（const 写在 if 前面）会泄漏作用域。</p>
+
+  <h3>for 一统天下</h3>
+  <pre><code>for i := 0; i &lt; 10; i++ { }  // 三段式
+for x &lt; 10 { }               // 只有条件 = JS 的 while
+for { }                       // 什么都没有 = 死循环（配 break）
+for i, v := range s { }       // 遍历（阶段 2 细讲）</code></pre>
+  <p>JS 的 for / while / do-while / for-in / for-of 五个语法，Go 一个 for 全包。</p>
+
+  <h3>switch：默认 break</h3>
+  <pre><code>switch day {
+case 1, 2, 3, 4, 5:          // case 可多值
+    fmt.Println("工作日")
+default:
+    fmt.Println("周末")
+}
+
+switch {                     // 无表达式 switch = if-else 链的整齐版
+case score &gt;= 90:
+    // ...
+}</code></pre>
+  <p>JS 的 switch 不 break 会穿透（经典 bug 源）；Go 反转默认——不穿透，要穿透必须显式写 <code>fallthrough</code>。case 还不要求是常量。</p>
+
+  <h3>函数：多返回值是语言级能力</h3>
+  <pre><code>func divide(a, b int) (int, error) { ... }   // 返回两个值
+q, r := divide(10, 3)
+q, _ := divide(10, 3)                        // _ 丢弃不要的
+
+func sum(nums ...int) int { }                // 可变参数 ≈ JS rest</code></pre>
+  <div class="callout js"><b>JS 对照</b><p>JS 想返回多个值只能返回数组再解构 <code>const [q, err] = divide()</code>，类型不受保护；Go 的多返回值每个位置都有类型。没有默认参数；闭包与匿名函数和 JS 几乎一致。</p></div>
+  <div class="callout back"><b>back 真实代码</b><p>smb controller 里天天见的两行：<code>if err := g.BindJSON(req); err != nil { ... }</code>（if 带初始化 + error 判断的标准姿势）、<code>reqJson, _ := json.Marshal(req)</code>（多返回值 + _ 丢弃）。</p></div>
+
+  <div class="pager"><a href="stage-0.html">← 阶段 0 · 环境搭建</a><a href="stage-2.html">阶段 2 · 核心数据结构 →</a></div>
+  <footer class="colophon">进度源文档：<code>go/学习进度.md</code></footer>
+</main>
+</body>
+</html>

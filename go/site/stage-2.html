@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>阶段 2 · 核心数据结构 — Go 从零学习</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<nav class="sidebar">
+  <a class="brand" href="index.html">Go 从零学习<span>JS 背景 → 满足后台开发要求</span></a>
+  <ol class="nav">
+    <li><a href="index.html">总览 · 学习计划</a></li>
+    <li><details>
+      <summary><a href="stage-0.html">阶段 0 · 环境搭建</a><em class="st done">完成</em></summary>
+      <ul class="sub">
+        <li><a href="stage-0.html#checklist">章节清单</a></li>
+        <li><a href="stage-0.html#trouble">排障实录</a></li>
+      </ul>
+    </details></li>
+    <li><details>
+      <summary><a href="stage-1.html">阶段 1 · 语法基础</a><em class="st done">完成</em></summary>
+      <ul class="sub">
+        <li><a href="stage-1.html#checklist">章节清单</a></li>
+        <li><a href="stage-1.html#l1">第一课 · 变量与类型</a></li>
+        <li><a href="stage-1.html#l2">第二课 · 常量与运算符</a></li>
+        <li><a href="stage-1.html#supp">补充 · 条件循环函数</a></li>
+      </ul>
+    </details></li>
+    <li><details open>
+      <summary><a class="active" href="stage-2.html">阶段 2 · 核心数据结构</a><em class="st doing">进行中</em></summary>
+      <ul class="sub">
+        <li><a href="stage-2.html#checklist">章节清单</a></li>
+        <li><a href="stage-2.html#l1">第一课 · 数组与切片</a></li>
+        <li><a href="stage-2.html#l2">第二课 · map 与 range</a></li>
+        <li><a href="stage-2.html#l3">第三课 · 结构体</a></li>
+        <li><a href="stage-2.html#l4">第四课 · 指针与转换</a></li>
+      </ul>
+    </details></li>
+    <li><details>
+      <summary><a href="stage-3.html">阶段 3 · 方法接口与错误处理</a></summary>
+      <ul class="sub">
+        <li><a href="stage-3.html#checklist">章节清单</a></li>
+        <li><a href="stage-3.html#l1">第一课 · 方法与组合</a></li>
+        <li><a href="stage-3.html#l2">第二课 · 接口与断言</a></li>
+        <li><a href="stage-3.html#l3">第三课 · 错误处理</a></li>
+        <li><a href="stage-3.html#l4">第四课 · 泛型·递归·正则</a></li>
+      </ul>
+    </details></li>
+    <li><details>
+      <summary><a href="stage-4.html">阶段 4 · 并发</a></summary>
+      <ul class="sub">
+        <li><a href="stage-4.html#checklist">章节清单</a></li>
+        <li><a href="stage-4.html#l1">第一课 · goroutine 与 channel</a></li>
+        <li><a href="stage-4.html#l2">第二课 · sync 与 select</a></li>
+      </ul>
+    </details></li>
+    <li><details>
+      <summary><a href="stage-5.html">阶段 5 · 工程化</a></summary>
+      <ul class="sub">
+        <li><a href="stage-5.html#checklist">章节清单</a></li>
+        <li><a href="stage-5.html#l1">第一课 · 包·模块·文件</a></li>
+        <li><a href="stage-5.html#l2">第二课 · 单元测试</a></li>
+      </ul>
+    </details></li>
+    <li><details>
+      <summary><a href="stage-6.html">阶段 6 · Web 后台实战</a></summary>
+      <ul class="sub">
+        <li><a href="stage-6.html#checklist">章节清单</a></li>
+        <li><a href="stage-6.html#l1">第一课 · net/http 裸写</a></li>
+        <li><a href="stage-6.html#l2">第二课 · gin 框架</a></li>
+        <li><a href="stage-6.html#l3">第三课 · gorm ORM</a></li>
+        <li><a href="stage-6.html#l4">第四课 · 分层与毕业作品</a></li>
+      </ul>
+    </details></li>
+    <li><details>
+      <summary><a href="stage-7.html">阶段 7 · 精读 smb</a></summary>
+      <ul class="sub">
+        <li><a href="stage-7.html#checklist">章节清单</a></li>
+        <li><a href="stage-7.html#l1">第一课 · fx 依赖注入</a></li>
+        <li><a href="stage-7.html#l2">第二课 · 泛型仓储精读</a></li>
+        <li><a href="stage-7.html#l3">第三课 · casbin 与 MQTT</a></li>
+        <li><a href="stage-7.html#l4">第四课 · 毕业精读</a></li>
+      </ul>
+    </details></li>
+  </ol>
+</nav>
+<main>
+  <h1>阶段 2 · 核心数据结构</h1>
+  <p class="sub">目标：熟练使用切片、map、结构体，理解值语义与指针——这是读 back 代码的最大门槛。<span class="chip doing">进行中</span></p>
+
+  <h2 id="checklist">章节 checklist</h2>
+  <ul class="tasks">
+    <li class="done">数组（ch15）：定长、值类型<span class="note">2026-09-07 练习验收</span></li>
+    <li class="done">切片（ch18）：len/cap、append、切片截取<span class="note">2026-09-07 验收：任务全覆盖，自发用 %p 打印底层数组地址观察搬家与共享断开（超纲）</span></li>
+    <li class="done">范围 Range（ch19）：for range 遍历切片/map<span class="note">2026-09-09 验收，含 range string 字节下标跳步实验</span></li>
+    <li class="done">Map（ch20）：增删改查、<code>v, ok := m[k]</code> 判存在<span class="note">2026-09-09 验收：ok 正反用例齐全、nil map panic 实测</span></li>
+    <li class="todo">指针（ch16）：&amp; 取地址、* 解引用、指针传递</li>
+    <li class="done">结构体（ch17）：定义、初始化、tag、嵌套<span class="note">2026-09-09 复验通过：三式初始化 + 提升访问补齐；提醒：类型定义放包级（两次点评）</span></li>
+    <li class="todo">类型转换（ch22）：显式转换、strconv</li>
+  </ul>
+
+  <h2>JS 对照重点</h2>
+  <div class="callout js">
+    <b>JS 对照</b>
+    <p><b>slice ≈ JS Array</b>，但有 len/cap 两把尺；<code>append</code> 可能更换底层数组，两个切片共享底层数组时改一个另一个跟着变（JS 数组赋值是引用，永远「同一个」数组）。</p>
+    <p><b>map ≈ JS object/Map</b>，但遍历顺序故意随机（JS object 遍历顺序有规则）、key 必须可比较。判断 key 存在要用 <code>v, ok := m[k]</code> 双返回值，不能像 JS 那样 <code>if (m[k])</code> 真值判断——Go 里 0 值也是合法存在的值。</p>
+    <p><b>struct ≈ JS object + class 字段声明的合体</b>，但<b>赋值即拷贝（值语义）</b>——JS 里对象赋值全是引用，这是从 JS 转 Go 最容易踩的坑。</p>
+    <p><b>指针是 JS 完全没有的概念</b>：重点讲「变量的地址」、为什么方法常定义在 <code>*T</code> 上（改自身 vs 改副本）。</p>
+  </div>
+
+  <h2>back 对照（本阶段高潮：看见真实实体定义）</h2>
+  <div class="callout back">
+    <b>back 真实代码</b>
+    <p><code>D:\project\back\smb\smb_server\internal\model\entity\site.go</code>——<b>以后天天写的格式</b>：</p>
+    <pre><code>type Site struct {
+    SiteID      string         `json:"site_id" gorm:"column:site_id;type:varchar(64);primaryKey;not null"`
+    OrgID       string         `json:"org_id" gorm:"column:org_id;type:varchar(64);not null;index"`
+    Tags        pq.StringArray `json:"tags" gorm:"column:tags;type:text[];default:'{}'"`
+    Address     SiteAddress    `json:"address" gorm:"embedded"`
+    CreatedAt   int64          `json:"created_at" gorm:"not null;autoCreateTime:milli"`
+}
+func (Site) TableName() string { return "sites" }</code></pre>
+    <p>json tag / gorm tag、embedded 嵌入结构、<code>TableName()</code> 方法。</p>
+    <p><code>D:\project\back\net_scan\backend\internal\storage\db.go</code>：Device struct，<code>json:"-"</code> 隐藏字段（≈ JS 序列化时删 key）。</p>
+  </div>
+
+  <h2>练习规划</h2>
+  <div class="callout ex">
+    <b>练习</b>
+    <p><code>code/02-slice/</code>（append 换底层数组实验、共享截取实验）· <code>code/03-map/</code>（判存在、无序遍历）· <code>code/04-struct/</code>（值拷贝实验、tag 实验）· <code>code/05-pointer/</code>（指针改值 vs 副本改值）—— 编号沿用用户自建 00/01 序列</p>
+  </div>
+
+  <h2 id="l1">第一课 · 数组与切片</h2>
+  <p class="sub">覆盖 ch15（数组）、ch18（切片）。练习落在 code/02-slice/。</p>
+
+  <h3>1. 数组：定长的原始人</h3>
+  <pre><code>var arr [3]int            // 长度写进类型！[3]int 和 [4]int 是两个不同类型
+arr[0] = 1
+nums := [3]int{1, 2, 3}   // 字面量初始化
+auto := [...]int{1, 2, 3} // 让编译器自己数</code></pre>
+  <p>两个关键认知：① 数组是<b>值类型</b>——赋值、传参都是整份拷贝；② 实际工程里几乎不直接用数组，它是切片的底料。你 99% 的场景写的都是切片。</p>
+
+  <h3>2. 切片：Go 版的 Array</h3>
+  <pre><code>s := []int{1, 2, 3}        // 不写长度 = 切片
+s = append(s, 4)           // 追加（注意：必须接住返回值！）
+sub := s[1:3]              // 截取，下标含头不含尾</code></pre>
+  <p>切片的本体是一个三字段结构：<b>指向底层数组的指针 + len（装了几个）+ cap（底层数组总共能装几个）</b>。cap 不够时 append 会换一个更大的底层数组搬家。</p>
+  <pre><code>s := make([]int, 0, 10)    // 预分配：len=0，cap=10（工程惯例，省去反复搬家）</code></pre>
+
+  <h3>3. JS 对照</h3>
+  <div class="callout js">
+    <b>JS 对照</b>
+    <p><b>相同点</b>：动态长度、<code>append</code> ≈ <code>push</code>、下标访问、都能遍历。</p>
+    <p><b>不同点</b>：JS 数组赋值 = 复制同一个引用（两个变量是同一个数组）；Go 切片赋值 = 拷贝「指针+len+cap」三字段——两个切片<b>共享同一份底层数据</b>，但 len/cap 各自独立。</p>
+    <p><b>易踩坑 ×3</b>：</p>
+    <p>① <b>append 必须接住</b>：<code>s = append(s, 4)</code>——忘了接住 = 白加（值语义的第一次惩罚）；</p>
+    <p>② <b>截取是共享不是拷贝</b>：<code>sub := s[1:3]; sub[0] = 99</code> 会改掉 s[1]！JS 的 <code>arr.slice(1,3)</code> 返回新数组，Go 的 <code>s[1:3]</code> 只是开了个看同一块内存的新窗口；</p>
+    <p>③ <b>append 搬家后共享断开</b>：对 sub append 触发搬家后，sub 与 s 各自为政。</p>
+  </div>
+
+  <h3>4. 看真项目：parseTagsQuery（smb · sitecontroller.go）</h3>
+  <div class="callout back">
+    <b>back 真实代码</b>
+    <p>解析 tags 查询参数的实用函数（每个列表接口都用得上）：</p>
+    <pre><code>out := make([]string, 0, len(raw))   // 预分配：len=0，cap=len(raw)
+for _, item := range raw {           // 先认脸，下节课细讲
+    for _, part := range strings.Split(item, ",") {
+        part = strings.TrimSpace(part)
+        if part != "" {
+            out = append(out, part)  // append 必须接住
+        }
+    }
+}
+return out</code></pre>
+    <p>三个讲义知识点在 8 行真实代码里全部出现：<code>make</code> 预分配（Go 工程惯例，已知长度就别让 append 反复搬家）、切片截取共享、append 接住。</p>
+  </div>
+
+  <h3>5. 练习（5 个任务）</h3>
+  <div class="callout ex">
+    <b>练习 · code/02-slice/ ✅（2026-09-07 验收：任务全覆盖 + 超纲的 &s[0] 地址打印观察搬家）</b>
+    <ol>
+      <li>分别声明 <code>[3]int</code> 数组与 <code>[]int</code> 切片，打印两者的 len；对数组调 <code>append</code> 看报错（数组不能 append）</li>
+      <li>搬家实验：<code>s := make([]int, 0, 3)</code>，连续 append 5 个数，<b>每步打印 len(s) 和 cap(s)</b>——亲眼看 cap 翻倍搬家</li>
+      <li>白加实验：写 <code>append(s, 100)</code> 但不接住返回值，打印 s 确认 100 没进去</li>
+      <li>共享实验：<code>s := []int{1,2,3,4,5}; sub := s[1:3]; sub[0] = 99</code>，打印 s——s[1] 变成了 99</li>
+      <li>思考题：用一句话说清 JS 的 <code>arr.slice(1,3)</code> 与 Go 的 <code>s[1:3]</code> 本质区别</li>
+    </ol>
+  </div>
+
+  <h2 id="l2">第二课 · map 与 range</h2>
+  <p class="sub">覆盖 ch20（Map）、ch19（Range）。练习落在 code/03-map/。</p>
+
+  <h3>1. map 基础四式</h3>
+  <pre><code>m := map[string]int{"a": 1, "b": 2}  // 字面量
+m["c"] = 3          // 增 / 改
+v := m["a"]         // 查
+delete(m, "b")      // 删
+
+n := make(map[string]int)  // 空映射
+var nilM map[string]int    // ⚠️ nil map：只读安全，写入直接 panic</code></pre>
+  <p>key 必须是<b>可比较类型</b>（string/int/bool 可以；slice/map/函数不行）。</p>
+
+  <h3>2. JS 对照</h3>
+  <div class="callout js">
+    <b>JS 对照</b>
+    <p><b>相同点</b>：键值对、动态增删、都是引用类型（赋值即共享）。</p>
+    <p><b>不同点</b>：</p>
+    <p>① 取不存在的 key：JS 给 <code>undefined</code>，所以 <code>if (!m[k])</code> 能用；Go 给<b>零值</b>（int→0、string→""），<code>m["x"] == 0</code> 分不清「不存在」还是「存在且值为 0」→ 必须用双返回值 <code>v, ok := m["x"]</code>。</p>
+    <p>② 遍历顺序：JS object 有规则顺序；Go <b>故意每次随机</b>（运行时洗牌，逼你不依赖顺序写代码）。</p>
+    <p>③ key 类型：JS 只能 string/Symbol；Go 任意可比较类型。</p>
+    <p><b>易踩坑 ×2</b>：nil map 写入 panic（<code>var m map[string]int; m["a"]=1</code> → panic）——Go 惯例是 make 或字面量起手；nil map <b>读</b>是安全的（返回零值），只有写炸。</p>
+  </div>
+
+  <h3>3. for range 全家福</h3>
+  <pre><code>for k, v := range m { }      // map：键、值
+for i, v := range s { }      // slice：下标、值
+for i := range s { }         // 只要下标
+for _, v := range s { }      // 只要值
+for i, c := range "中国" { }  // string：字节下标 + rune（i 是 0,3 —— 跳着走！）</code></pre>
+  <div class="callout js">
+    <b>JS 对照</b>
+    <p>JS 的 for-of（拿值）+ for-in（拿 key）两个语法，Go 合成一个 range；不要的返回值用 <code>_</code> 丢。<b>易踩坑</b>：range string 的 i 是<b>字节位置</b>不是字符序号——第一课 <code>len([]rune)</code> 的姊妹坑。</p>
+  </div>
+
+  <h3>4. 看真项目：两个天天见的 map</h3>
+  <div class="callout back">
+    <b>back 真实代码 ×2</b>
+    <p><b>map 作参数</b>——smb 的 Controller 接口签名（30+ controller 靠它拿到「路径前缀 → 路由组」映射）：</p>
+    <pre><code>type Controller interface {
+    RegisterRoutes(groups map[string]*gin.RouterGroup, engin *gin.Engine)
+}</code></pre>
+    <p><b>gin.H 的真身</b>——net_scan handler 里天天写的响应构造，本质就是 map 字面量：</p>
+    <pre><code>type H map[string]any   // gin 源码定义
+c.JSON(http.StatusOK, gin.H{"error": err.Error()})</code></pre>
+  </div>
+
+  <h3>5. 练习（6 个任务）</h3>
+  <div class="callout ex">
+    <b>练习 · code/03-map/ ✅（2026-09-09 验收：ok 正反用例 + nil map panic + range string 跳步）</b>
+    <ol>
+      <li>词频统计：<code>strings.Fields("go is fun go is fast")</code> 切词，<code>m[w]++</code> 统计词频（体会：不存在的 key 零值 0 直接 ++）</li>
+      <li>ok 实验：取不存在 key 的两个返回值，打印 (0, false)</li>
+      <li>编译器教学实验：<code>m := map[string]int{"a": 0}</code>，试写 <code>if m["a"] { }</code> 看报错——理解为什么必须 ok</li>
+      <li>nil map 实验：<code>var m map[string]int</code>，先读 <code>m["a"]</code>（安全返回 0），再写 <code>m["a"] = 1</code>（panic）</li>
+      <li>随机序实验：遍历同一个 map 两遍，对比输出顺序</li>
+      <li>range string 实验：<code>for i, c := range "中国go"</code> 打印 i 和 <code>string(c)</code>——下标 0,3,6,7</li>
+    </ol>
+    <p>思考题：为什么 Go 故意把 map 遍历顺序随机化？</p>
+  </div>
+
+  <h2 id="l3">第三课 · 结构体 struct</h2>
+  <p class="sub">覆盖 ch17（结构体）。练习落在 code/04-struct/。这一课是「读 back 代码」的最大门槛——值语义 + tag + 嵌入。</p>
+
+  <h3>1. struct 基础</h3>
+  <pre><code>type Site struct {
+    SiteID    string
+    OrgID     string
+    Tags      []string
+    CreatedAt int64
+}
+
+s1 := Site{SiteID: "s1", OrgID: "o1"}  // ① 字段名初始化（推荐，顺序无关）
+s2 := Site{"s1", "o1", nil, 0}         // ② 按顺序（不推荐，加字段就崩）
+s3 := &amp;Site{SiteID: "s1"}            // ③ 指针初始化（下节课主角）
+var s4 Site                            // ④ 零值
+s4.SiteID = "s4"</code></pre>
+
+  <h3>2. JS 对照 · 值语义大考</h3>
+  <div class="callout js">
+    <b>JS 对照</b>
+    <p><b>相同点</b>：字段集合 ≈ JS object 字面量。</p>
+    <p><b>不同点</b>：struct 赋值是<b>整份拷贝</b>（值类型！）；JS object 赋值是引用。</p>
+    <pre><code>a := Site{SiteID: "1"}
+b := a              // 整份拷贝
+b.SiteID = "2"
+// a.SiteID 还是 "1" —— JS 里 a、b 是同一个对象，a.SiteID 也变 "2"</code></pre>
+    <p><b>易踩坑 ×2</b>：想共享？用指针 <code>b := &amp;a</code>（下节课主角）；函数传 struct 也是拷贝——大 struct 传参用指针（性能 + 改动原值）。</p>
+  </div>
+
+  <h3>3. tag：struct 的元数据（back 高频）</h3>
+  <pre><code>type Site struct {
+    SiteID string `json:"site_id" gorm:"column:site_id;primaryKey"`
+}</code></pre>
+  <p>反引号包裹的字符串 = 编译器无视、运行时<b>反射</b>读取的「标签」。json 序列化按 tag 重命名键、gorm ORM 按 tag 映射数据库列。这是 back 项目天天写的格式。</p>
+  <div class="callout js">
+    <b>JS 对照</b>
+    <p>JS 没有原生 tag——靠装饰器或手写映射函数；Go 的 tag 是语言内置的元数据通道，第三方库（gorm/gin/validate）全靠它读配置。</p>
+  </div>
+
+  <h3>4. 嵌入（embedding）—— Go 的"组合复用"</h3>
+  <pre><code>type Base struct {
+    CreatedAt int64
+    UpdatedAt int64
+}
+type Site struct {
+    Base              // 匿名嵌入：Site 直接拥有 Base 的字段
+    SiteID string
+}
+
+s := Site{SiteID: "1"}
+s.CreatedAt = 123    // 直接访问，像继承</code></pre>
+  <p>Go 刻意没有 <code>class extends</code>，靠嵌入复用。runoob ch30 叫「继承」，本质是组合——下下节课讲方法时还会回来：嵌入类型的方法也会被「提升」到外层。</p>
+
+  <h3>5. back 真实代码 · entity/site.go 全文精读</h3>
+  <div class="callout back">
+    <b>back 真实代码</b>
+    <p><code>smb_server/internal/model/entity/site.go</code>——以后天天写的格式：</p>
+    <pre><code>type Site struct {
+    SiteID    string         `json:"site_id" gorm:"column:site_id;type:varchar(64);primaryKey;not null"`
+    OrgID     string         `json:"org_id" gorm:"column:org_id;type:varchar(64);not null;index"`
+    Tags      pq.StringArray `json:"tags" gorm:"column:tags;type:text[];default:'{}'"`
+    Address   SiteAddress    `json:"address" gorm:"embedded"`
+    CreatedAt int64          `json:"created_at" gorm:"not null;autoCreateTime:milli"`
+}
+func (Site) TableName() string { return "sites" }</code></pre>
+    <p>逐字段拆解：</p>
+    <ul>
+      <li><b>json tag</b> → API 出参键名（<code>site_id</code> 而非 <code>SiteID</code>）</li>
+      <li><b>gorm tag</b> → 数据库列名、类型、约束（primaryKey / not null / index）</li>
+      <li><b>pq.StringArray</b> → postgres 数组类型的自定义类型别名（自定义类型也能做字段）</li>
+      <li><code>Address SiteAddress gorm:"embedded"</code> → 嵌入结构，地址字段展平进 sites 表</li>
+      <li><code>CreatedAt int64 gorm:"autoCreateTime:milli"</code> → 毫秒时间戳自动填充</li>
+      <li><code>TableName()</code> → ORM 表名映射（这是个<b>方法</b>，下下节课主角）</li>
+    </ul>
+    <p>结论：back 的「实体类」= Go struct + 双 tag（json + gorm）。</p>
+  </div>
+
+  <h3>6. 练习（5 个任务）</h3>
+  <div class="callout ex">
+    <b>练习 · code/04-struct/ ✅（2026-09-09 两轮验收：首轮 2.5/5，补做 3 项后复验通过，评价全程落 main.go 末尾）</b>
+    <ol>
+      <li>定义 <code>Device</code> struct（Name / Price / Tags），三种初始化各写一遍并打印</li>
+      <li>值语义实验：<code>a := Device{Name:"d1"}; b := a; b.Name = "改了"</code>，打印 <code>a.Name</code>——确认 a 没变</li>
+      <li>tag 实验：定义带 <code>json:"device_name"</code> tag 的 struct，用 <code>json.Marshal</code> 序列化打印（import "encoding/json"），看键名按 tag 走</li>
+      <li>嵌入实验：定义 <code>Base{ID int}</code> 嵌入进 Device，访问 <code>device.ID</code> 看能否直接拿到</li>
+      <li>思考题：smb 的 Site 为什么用 <code>int64</code> 存 CreatedAt 而不是 <code>time.Time</code>？</li>
+    </ol>
+  </div>
+
+  <h2 id="l4">第四课 · 指针与类型转换 <span class="chip todo">讲义就绪 · 未开课</span></h2>
+  <p class="sub">覆盖 ch16（指针）、ch22（类型转换）。练习落在 code/05-pointer/。前三课埋的 &amp;s[0]、&amp;Site{}、&amp;service.UpdateSiteRequest{} 在这里全部收口。</p>
+
+  <h3>1. 指针 = 存「变量地址」的变量</h3>
+  <pre><code>a := 42
+p := &amp;a          // &amp; 取地址：p 的类型是 *int
+fmt.Println(p)   // 0xc000012345（地址）
+fmt.Println(*p)  // 42 —— * 解引用：顺着地址取值
+*p = 100         // 顺着地址改值 —— a 变成 100
+fmt.Println(a)   // 100</code></pre>
+  <p>两个符号记牢：<code>&amp;</code> 取地址（变量 → 指针）、<code>*</code> 解引用（指针 → 变量）。指针的零值是 <code>nil</code>；<b>Go 没有指针运算</b>（C 的 p++ 不存在）——安全但少了一份底层自由。</p>
+
+  <h3>2. JS 对照 · 为什么需要指针</h3>
+  <div class="callout js">
+    <b>JS 对照</b>
+    <p><b>JS 没有指针</b>，因为 JS 的 object 赋值、传参天然就是「传引用」——你在 JS 里从来没有「拷贝了一个对象」的烦恼（要拷贝还得手写 structuredClone）。</p>
+    <p>Go 的 struct 是值类型（上节课的大考），想跨函数改动同一个 struct，就得把<b>它的地址</b>传过去：<code>func update(s *Site) { s.SiteID = "x" }</code>。指针是 Go 里「共享可变数据」的显式通道——谁拿了指针一目了然，不像 JS 引用满天飞。</p>
+    <p><b>易踩坑 ×2</b>：① nil 指针解引用直接 panic，用前判 nil；② 值接收者方法里改字段改的是副本（阶段 3 方法课细讲）。</p>
+  </div>
+
+  <h3>3. 类型转换：没有隐式，全家显式</h3>
+  <pre><code>f := 3.14
+i := int(f)              // 截断小数 → 3（不是四舍五入！）
+
+s := "中国"
+b := []byte(s)           // string → 字节切片（len 3）
+r := []rune(s)           // string → 码点切片（len 1）
+
+n, err := strconv.Atoi("65")     // 文本 → int（可能失败 → 双返回值！）
+str := strconv.Itoa(65)          // int → 文本</code></pre>
+  <p>数字↔文本必走 strconv（还记得 string(65)="A" 的坑吗）；string↔[]byte/[]rune 是编码层转换。</p>
+
+  <h3>4. back 真实代码 · 指针的两个高频位置</h3>
+  <div class="callout back">
+    <b>back 真实代码</b>
+    <p><b>位置一：DTO 构造</b>——smb controller（第一课见过）：</p>
+    <pre><code>req := &amp;service.UpdateSiteRequest{}   // 直接造一个「指向空请求的指针」
+g.BindJSON(req)                        // gin 往指针指向的对象里灌数据</code></pre>
+    <p>为什么用指针？BindJSON 要把解析结果<b>写进</b> req——传值的话写的是副本，白写。这是指针「跨函数改对象」的最典型工程用法。</p>
+    <p><b>位置二：依赖持有</b>——smb service 的 struct 字段清一色指针：</p>
+    <pre><code>type SiteService struct {
+    siteRepo         *pgsql.PostgreSqlDB[entity.Site]   // 泛型仓储指针
+    organizationRepo *pgsql.PostgreSqlDB[entity.Organization]
+    casbinEnforcer   *casbin.Enforcer
+}</code></pre>
+    <p>大对象只传地址不拷贝；nil 表示「还没注入依赖」。</p>
+  </div>
+
+  <h3>5. 练习（code/05-pointer/，5 个任务）</h3>
+  <div class="callout ex">
+    <b>练习 · code/05-pointer/main.go</b>
+    <ol>
+      <li>解引用实验：a := 42; p := &amp;a; *p = 100，打印 a——100</li>
+      <li>swap 双版本：swapByValue(a, b int)（改不了外部）和 swapByPtr(a, b *int)（改得了），打印对比</li>
+      <li>struct 传参：函数参数用 Site 值改 SiteID（外部不变）vs 用 *Site（外部变了）——亲手复现值语义大考</li>
+      <li>转换实验：int(3.14)、int(3.99)（都是 3，截断不是四舍五入）、strconv.Atoi("abc") 看双返回值的 err</li>
+      <li>思考题：back 里 <code>req := &amp;service.UpdateSiteRequest{}</code> 为什么加 &amp;，不加会发生什么？</li>
+    </ol>
+    <p>完成本课 = 阶段 2 练习全部完成。</p>
+  </div>
+
+  <h3>下一阶段预告</h3>
+  <p class="sub">阶段 3 · 方法、接口与错误处理——back 最核心的三大代码模式。第一课「方法与组合」：TableName() 这个语法的全貌、为什么 UpdateSite 定义在 *SiteController 上。</p>
+
+  <div class="pager"><a href="stage-1.html">← 阶段 1 · 语法基础</a><a href="stage-3.html">阶段 3 · 方法接口与错误处理 →</a></div>
+  <footer class="colophon">进度源文档：<code>go/学习进度.md</code></footer>
+</main>
+</body>
+</html>

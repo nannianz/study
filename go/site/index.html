@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Go 从零学习 · 总览</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<nav class="sidebar">
+  <a class="brand" href="index.html">Go 从零学习<span>JS 背景 → 满足后台开发要求<br>主线教材：菜鸟教程 Go（34 章）<br>真实代码对照：D:\project\back</span></a>
+  <ol class="nav">
+    <li><a class="active" href="index.html">总览 · 学习计划</a></li>
+    <li><details>
+      <summary><a href="stage-0.html">阶段 0 · 环境搭建</a><em class="st done">完成</em></summary>
+      <ul class="sub">
+        <li><a href="stage-0.html#checklist">章节清单</a></li>
+        <li><a href="stage-0.html#trouble">排障实录</a></li>
+      </ul>
+    </details></li>
+    <li><details>
+      <summary><a href="stage-1.html">阶段 1 · 语法基础</a><em class="st done">完成</em></summary>
+      <ul class="sub">
+        <li><a href="stage-1.html#checklist">章节清单</a></li>
+        <li><a href="stage-1.html#l1">第一课 · 变量与类型</a></li>
+        <li><a href="stage-1.html#l2">第二课 · 常量与运算符</a></li>
+        <li><a href="stage-1.html#supp">补充 · 条件循环函数</a></li>
+      </ul>
+    </details></li>
+    <li><details open>
+      <summary><a href="stage-2.html">阶段 2 · 核心数据结构</a><em class="st doing">进行中</em></summary>
+      <ul class="sub">
+        <li><a href="stage-2.html#checklist">章节清单</a></li>
+        <li><a href="stage-2.html#l1">第一课 · 数组与切片</a></li>
+        <li><a href="stage-2.html#l2">第二课 · map 与 range</a></li>
+        <li><a href="stage-2.html#l3">第三课 · 结构体</a></li>
+        <li><a href="stage-2.html#l4">第四课 · 指针与转换</a></li>
+      </ul>
+    </details></li>
+    <li><details>
+      <summary><a href="stage-3.html">阶段 3 · 方法接口与错误处理</a></summary>
+      <ul class="sub">
+        <li><a href="stage-3.html#checklist">章节清单</a></li>
+        <li><a href="stage-3.html#l1">第一课 · 方法与组合</a></li>
+        <li><a href="stage-3.html#l2">第二课 · 接口与断言</a></li>
+        <li><a href="stage-3.html#l3">第三课 · 错误处理</a></li>
+        <li><a href="stage-3.html#l4">第四课 · 泛型·递归·正则</a></li>
+      </ul>
+    </details></li>
+    <li><details>
+      <summary><a href="stage-4.html">阶段 4 · 并发</a></summary>
+      <ul class="sub">
+        <li><a href="stage-4.html#checklist">章节清单</a></li>
+        <li><a href="stage-4.html#l1">第一课 · goroutine 与 channel</a></li>
+        <li><a href="stage-4.html#l2">第二课 · sync 与 select</a></li>
+      </ul>
+    </details></li>
+    <li><details>
+      <summary><a href="stage-5.html">阶段 5 · 工程化</a></summary>
+      <ul class="sub">
+        <li><a href="stage-5.html#checklist">章节清单</a></li>
+        <li><a href="stage-5.html#l1">第一课 · 包·模块·文件</a></li>
+        <li><a href="stage-5.html#l2">第二课 · 单元测试</a></li>
+      </ul>
+    </details></li>
+    <li><details>
+      <summary><a href="stage-6.html">阶段 6 · Web 后台实战</a></summary>
+      <ul class="sub">
+        <li><a href="stage-6.html#checklist">章节清单</a></li>
+        <li><a href="stage-6.html#l1">第一课 · net/http 裸写</a></li>
+        <li><a href="stage-6.html#l2">第二课 · gin 框架</a></li>
+        <li><a href="stage-6.html#l3">第三课 · gorm ORM</a></li>
+        <li><a href="stage-6.html#l4">第四课 · 分层与毕业作品</a></li>
+      </ul>
+    </details></li>
+    <li><details>
+      <summary><a href="stage-7.html">阶段 7 · 精读 smb</a></summary>
+      <ul class="sub">
+        <li><a href="stage-7.html#checklist">章节清单</a></li>
+        <li><a href="stage-7.html#l1">第一课 · fx 依赖注入</a></li>
+        <li><a href="stage-7.html#l2">第二课 · 泛型仓储精读</a></li>
+        <li><a href="stage-7.html#l3">第三课 · casbin 与 MQTT</a></li>
+        <li><a href="stage-7.html#l4">第四课 · 毕业精读</a></li>
+      </ul>
+    </details></li>
+  </ol>
+</nav>
+<main>
+  <h1>Go 从零学习 · 总览</h1>
+  <p class="sub">学员背景：熟悉 JavaScript（ES6+、async/await、npm 生态），零 Go 基础。不定周期，按阶段推进。</p>
+
+  <h2>学习目标</h2>
+  <div class="goal">
+    <div class="card"><b>① 读懂 smb</b><br>能精读 <code>D:\project\back\smb</code> 一个完整功能的全链路（路由 → controller → service → repo → entity），达到能改需求的水平。</div>
+    <div class="card"><b>② 独立开发</b><br>能独立写一个 gin + gorm 的完整 CRUD 后台服务（net_scan 风格）。</div>
+  </div>
+
+  <h2>七个阶段</h2>
+  <table>
+    <tr><th>阶段</th><th>内容</th><th>教材章节</th><th>back 对照点</th><th>状态</th></tr>
+    <tr><td><a href="stage-0.html">0</a></td><td><a href="stage-0.html">环境搭建与第一个程序</a></td><td>简介 / 安装 / 结构 / 工具 / Modules / VSCode</td><td>smb/go.mod</td><td><span class="chip done">已完成</span></td></tr>
+    <tr><td><a href="stage-1.html">1</a></td><td><a href="stage-1.html">语法基础</a></td><td>ch6~14</td><td>boot.go</td><td><span class="chip done">已完成</span></td></tr>
+    <tr><td><a href="stage-2.html">2</a></td><td><a href="stage-2.html">核心数据结构</a></td><td>ch15~20、22、29</td><td>smb entity/site.go</td><td><span class="chip doing">进行中</span></td></tr>
+    <tr><td><a href="stage-3.html">3</a></td><td><a href="stage-3.html">方法、接口与错误处理</a></td><td>ch21、23、25、28、30</td><td>Controller 接口、泛型仓储</td><td><span class="chip todo">未开始</span></td></tr>
+    <tr><td><a href="stage-4.html">4</a></td><td><a href="stage-4.html">并发</a></td><td>ch26</td><td>csp、smb MQTT</td><td><span class="chip todo">未开始</span></td></tr>
+    <tr><td><a href="stage-5.html">5</a></td><td><a href="stage-5.html">工程化</a></td><td>ch27、32~34</td><td>net_scan 的 *_test.go</td><td><span class="chip todo">未开始</span></td></tr>
+    <tr><td><a href="stage-6.html">6</a></td><td><a href="stage-6.html">Web 后台实战</a></td><td>超出 runoob</td><td>net_scan / smb 全链路</td><td><span class="chip todo">未开始</span></td></tr>
+    <tr><td><a href="stage-7.html">7</a></td><td><a href="stage-7.html">进阶选修：精读 smb</a></td><td>超出 runoob</td><td>smb + gobase</td><td><span class="chip todo">未开始</span></td></tr>
+  </table>
+
+  <h2>当前进度（2026-09-01）</h2>
+  <p class="sub">阶段 0、1 已结业。阶段 2 进行中（切片/map 已验收，struct 练习进行中）。<b>全部剩余课时讲义已预生成</b>（阶段 2 第四课 ~ 阶段 7 毕业精读，未开课课时挂「讲义就绪」徽章），可提前浏览，实际教学按需微调。</p>
+
+  <h2>教学三原则</h2>
+  <ul>
+    <li><b>每个新概念必须给 JS 对照</b>：相同点 / 不同点 / 从 JS 转 Go 的易踩坑。</li>
+    <li><b>概念讲完必须对照 back 真实代码</b>：从 <code>D:\project\back</code> 摘真实代码举例，优先级 net_scan → smb → gobase。</li>
+    <li><b>练习代码必须跑通才算完成</b>：<code>go/code/&lt;编号-主题&gt;/main.go</code>，<code>go run .</code> 输出符合预期才算完成。</li>
+  </ul>
+
+  <h2>back 项目速查表（D:\project\back）</h2>
+  <table>
+    <tr><th>项目</th><th>技术栈</th><th>定位</th><th>学习用途</th></tr>
+    <tr><td>net_scan</td><td>gin + gorm + 前端 React</td><td>网络设备扫描管理（前后端同仓）</td><td><b>入门样本</b>：结构最简、测试齐全，阶段 2/5/6 主力对照</td></tr>
+    <tr><td>smb</td><td>gin + gorm + casbin + fx + MQTT</td><td>SMB 网管后台（当前主力，Go 1.25）</td><td><b>最终目标</b>：阶段 2 起引入，阶段 7 精读</td></tr>
+    <tr><td>gobase</td><td>公共基础库（非业务）</td><td>smb/svac 的共享依赖</td><td><b>基础库</b>：阶段 3 泛型仓储、阶段 7 启动框架</td></tr>
+    <tr><td>svac</td><td>gin + redis + fx</td><td>新一代 AC 无线控制器后台</td><td>了解即可，风格同 smb</td></tr>
+    <tr><td>vac</td><td>gin + gorm + swagger</td><td>旧一代 AC 后台（Go 1.18）</td><td>仅「新旧风格对比」，不学</td></tr>
+    <tr><td>csp</td><td>grpc 微服务群</td><td>最老微服务仓库（Go 1.20）</td><td>仅阶段 4 举例（channel 写法直白），不学</td></tr>
+  </table>
+  <p class="sub">注意：esg 后端实际在 <code>D:\project\esg_back</code>，是 <b>Node 项目</b>，与 Go 学习无关。</p>
+
+  <h2>常用对照文件速记</h2>
+  <table>
+    <tr><th>用途</th><th>路径</th></tr>
+    <tr><td>smb 实体</td><td><code>smb_server/internal/model/entity/site.go</code></td></tr>
+    <tr><td>smb 接口定义</td><td><code>smb_server/internal/controller/controller.go</code></td></tr>
+    <tr><td>gobase 泛型仓储</td><td><code>modules/pgsql/repository.go</code></td></tr>
+    <tr><td>net_scan 处理器</td><td><code>backend/internal/api/handlers.go</code></td></tr>
+  </table>
+
+  <div class="pager"><span></span><a href="stage-0.html">阶段 0 · 环境搭建 →</a></div>
+  <footer class="colophon">本站点由学习会话生成与维护（纯静态、零依赖）。进度源文档：<code>go/学习进度.md</code> · 会话规则：<code>AGENTS.md</code></footer>
+</main>
+</body>
+</html>

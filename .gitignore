@@ -22,3 +22,6 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 /my-react-app
+
+# 学习电子书 PDF 不入库（216MB/118MB 超 GitHub 单文件 100MB 限制，小 PDF 也避免撑大仓库）
+*.pdf

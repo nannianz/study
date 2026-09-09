@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>阶段 4 · 并发 — Go 从零学习</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<nav class="sidebar">
+  <a class="brand" href="index.html">Go 从零学习<span>JS 背景 → 满足后台开发要求</span></a>
+  <ol class="nav">
+    <li><a href="index.html">总览 · 学习计划</a></li>
+    <li><details>
+      <summary><a href="stage-0.html">阶段 0 · 环境搭建</a><em class="st done">完成</em></summary>
+      <ul class="sub">
+        <li><a href="stage-0.html#checklist">章节清单</a></li>
+        <li><a href="stage-0.html#trouble">排障实录</a></li>
+      </ul>
+    </details></li>
+    <li><details>
+      <summary><a href="stage-1.html">阶段 1 · 语法基础</a><em class="st done">完成</em></summary>
+      <ul class="sub">
+        <li><a href="stage-1.html#checklist">章节清单</a></li>
+        <li><a href="stage-1.html#l1">第一课 · 变量与类型</a></li>
+        <li><a href="stage-1.html#l2">第二课 · 常量与运算符</a></li>
+        <li><a href="stage-1.html#supp">补充 · 条件循环函数</a></li>
+      </ul>
+    </details></li>
+    <li><details>
+      <summary><a href="stage-2.html">阶段 2 · 核心数据结构</a><em class="st doing">进行中</em></summary>
+      <ul class="sub">
+        <li><a href="stage-2.html#checklist">章节清单</a></li>
+        <li><a href="stage-2.html#l1">第一课 · 数组与切片</a></li>
+        <li><a href="stage-2.html#l2">第二课 · map 与 range</a></li>
+        <li><a href="stage-2.html#l3">第三课 · 结构体</a></li>
+        <li><a href="stage-2.html#l4">第四课 · 指针与转换</a></li>
+      </ul>
+    </details></li>
+    <li><details>
+      <summary><a href="stage-3.html">阶段 3 · 方法接口与错误处理</a></summary>
+      <ul class="sub">
+        <li><a href="stage-3.html#checklist">章节清单</a></li>
+        <li><a href="stage-3.html#l1">第一课 · 方法与组合</a></li>
+        <li><a href="stage-3.html#l2">第二课 · 接口与断言</a></li>
+        <li><a href="stage-3.html#l3">第三课 · 错误处理</a></li>
+        <li><a href="stage-3.html#l4">第四课 · 泛型·递归·正则</a></li>
+      </ul>
+    </details></li>
+    <li><details open>
+      <summary><a class="active" href="stage-4.html">阶段 4 · 并发</a></summary>
+      <ul class="sub">
+        <li><a href="stage-4.html#checklist">章节清单</a></li>
+        <li><a href="stage-4.html#l1">第一课 · goroutine 与 channel</a></li>
+        <li><a href="stage-4.html#l2">第二课 · sync 与 select</a></li>
+      </ul>
+    </details></li>
+    <li><details>
+      <summary><a href="stage-5.html">阶段 5 · 工程化</a></summary>
+      <ul class="sub">
+        <li><a href="stage-5.html#checklist">章节清单</a></li>
+        <li><a href="stage-5.html#l1">第一课 · 包·模块·文件</a></li>
+        <li><a href="stage-5.html#l2">第二课 · 单元测试</a></li>
+      </ul>
+    </details></li>
+    <li><details>
+      <summary><a href="stage-6.html">阶段 6 · Web 后台实战</a></summary>
+      <ul class="sub">
+        <li><a href="stage-6.html#checklist">章节清单</a></li>
+        <li><a href="stage-6.html#l1">第一课 · net/http 裸写</a></li>
+        <li><a href="stage-6.html#l2">第二课 · gin 框架</a></li>
+        <li><a href="stage-6.html#l3">第三课 · gorm ORM</a></li>
+        <li><a href="stage-6.html#l4">第四课 · 分层与毕业作品</a></li>
+      </ul>
+    </details></li>
+    <li><details>
+      <summary><a href="stage-7.html">阶段 7 · 精读 smb</a></summary>
+      <ul class="sub">
+        <li><a href="stage-7.html#checklist">章节清单</a></li>
+        <li><a href="stage-7.html#l1">第一课 · fx 依赖注入</a></li>
+        <li><a href="stage-7.html#l2">第二课 · 泛型仓储精读</a></li>
+        <li><a href="stage-7.html#l3">第三课 · casbin 与 MQTT</a></li>
+        <li><a href="stage-7.html#l4">第四课 · 毕业精读</a></li>
+      </ul>
+    </details></li>
+  </ol>
+</nav>
+<main>
+  <h1>阶段 4 · 并发</h1>
+  <p class="sub">目标：理解 goroutine 与 channel，建立「并发要考虑数据竞争」的意识——JS 单线程思维的最大转变。<span class="chip todo">未开始</span></p>
+
+  <h2 id="checklist">章节 checklist</h2>
+  <ul class="tasks">
+    <li class="todo">Go 并发（ch26）：goroutine、channel（无缓冲/带缓冲）、遍历与关闭</li>
+    <li class="todo">补充：sync.WaitGroup、sync.Mutex、select（教程较浅，结合 back 补）</li>
+  </ul>
+
+  <h2>JS 对照重点</h2>
+  <div class="callout js">
+    <b>JS 对照</b>
+    <p>单线程事件循环 vs 多协程真并行：JS 的 async 是「协作式调度」，goroutine 是抢占式、可跑满多核。</p>
+    <p><code>go func(){...}()</code> ≈ 触发异步任务，但<b>通信方式完全不同</b>：JS 靠 Promise 链/回调取值，Go 靠 channel 传值（值发过去，不是共享变量）。</p>
+    <p>channel ≈ MessageChannel/消息队列，但有<b>阻塞语义</b>：没人收就卡住（这正是 Go 想要的同步点）。</p>
+    <p><b>数据竞争要加锁（Mutex）</b>——JS 永远不需要锁，这章是思维转变最大的一章。</p>
+  </div>
+
+  <h2>back 对照</h2>
+  <div class="callout back">
+    <b>back 真实代码</b>
+    <p><code>D:\project\back\csp\dispatch_grpc\cmd\main.go</code>：<code>go func()</code> + channel + <code>&lt;-forever</code> 挂起主协程（写法旧但最直白）：</p>
+    <pre><code>go func() {
+    // 起一个后台协程干活，结果通过 channel 送回
+}()
+
+&lt;-forever   // 主协程阻塞在这里，永远等一个不会来的值 → 进程不退出</code></pre>
+    <p><code>D:\project\back\smb</code> 的 MQTT 消息并发处理（阶段 7 再深入）。</p>
+  </div>
+
+  <h2>练习规划</h2>
+  <div class="callout ex">
+    <b>练习</b>
+    <p><code>code/09-goroutine/</code>（并发 10 任务、生产者消费者）· <code>code/10-channel/</code>（WaitGroup、Mutex 竞态、select 超时）</p>
+  </div>
+
+  <h2 id="l1">第一课 · goroutine 与 channel <span class="chip todo">讲义就绪 · 未开课</span></h2>
+  <p class="sub">覆盖 ch26 上半。练习落在 code/09-goroutine/。</p>
+
+  <h3>1. goroutine：go 一个函数就是并发</h3>
+  <pre><code>go doWork("task1")      // 加个 go 前缀，这个函数就跑在新协程里了
+go func() {             // 匿名函数版本
+    fmt.Println("并发干活")
+}()</code></pre>
+  <p>协程是 Go 运行时调度的轻量线程（初始栈 2KB），百万个不费劲。main 所在协程退出时，其他协程直接陪葬——所以需要「等」的机制。</p>
+
+  <h3>2. channel：协程间的传值管道</h3>
+  <pre><code>ch := make(chan int)        // 无缓冲
+ch &lt;- 42                    // 发送（没有接收者就阻塞等待）
+v := &lt;-ch                   // 接收（没有数据就阻塞等待）
+
+ch2 := make(chan int, 10)   // 带缓冲：装满前发送不阻塞
+
+close(ch)                   // 关闭后 range 读完历史数据即退出
+for v := range ch { }</code></pre>
+  <p>口诀：<b>不要通过共享内存来通信，而要通过通信来共享内存</b>——数据从一个协程「发」给另一个，而不是两个协程抢同一个变量。</p>
+
+  <h3>3. JS 对照</h3>
+  <div class="callout js">
+    <b>JS 对照</b>
+    <p><b>调度模型</b>：JS 单线程事件循环，async 是「协作式」排队；goroutine 多核真并行、抢占式调度——失去「反正单线程不会打架」的安全感。</p>
+    <p><b>取值方式</b>：JS 异步拿结果靠 Promise.then/await（注册回调，不阻塞）；<code>v := &lt;-ch</code> 是<b>真的阻塞等待</b>——协程挂起让出 CPU，值到了再醒。channel ≈ MessageChannel + 阻塞语义。</p>
+    <p><b>易踩坑 ×2</b>：① main 不等就退出，协程白跑（下节课 WaitGroup 收口）；② 无缓冲 channel 同一协程自发自收 = 死锁。</p>
+  </div>
+
+  <h3>4. back 真实代码</h3>
+  <div class="callout back">
+    <b>back 真实代码</b>
+    <p>csp 主进程的经典三件套（go func + channel + 阻塞挂起）：</p>
+    <pre><code>go func() {
+    // 后台协程：收消息、干活、结果送进 channel
+    for msg := range inputCh {
+        resultCh &lt;- handle(msg)
+    }
+}()
+
+&lt;-forever   // 主协程阻塞等一个永远不来的值 → 进程常驻不退出</code></pre>
+    <p>smb 的 MQTT 消息处理同款思路：网络协程收消息 → channel → 工作协程处理。</p>
+  </div>
+
+  <h3>5. 练习</h3>
+  <div class="callout ex">
+    <b>练习 · code/09-goroutine/</b>
+    <ol>
+      <li>起 10 个协程并发打印各自编号 + 主协程 sleep 1 秒观察（体会「不等就跑丢」）</li>
+      <li>无缓冲 channel：主协程发、子协程收，打印顺序证明「发送阻塞到有人收」</li>
+      <li>带缓冲：cap 3 的 channel 连发 5 个，观察第 4 个阻塞</li>
+      <li>生产者消费者：生产协程 close 后，消费协程 range 退出</li>
+    </ol>
+  </div>
+
+  <h2 id="l2">第二课 · sync 包与 select <span class="chip todo">讲义就绪 · 未开课</span></h2>
+  <p class="sub">ch26 下半（教程较浅，对照 back 补齐）。练习落在 code/10-channel/。</p>
+
+  <h3>1. WaitGroup：等一群协程干完</h3>
+  <pre><code>var wg sync.WaitGroup
+for i := 0; i &lt; 10; i++ {
+    wg.Add(1)             // 计数 +1
+    go func(id int) {
+        defer wg.Done()   // 干完 -1（defer 保证 panic 也减）
+        work(id)
+    }(i)
+}
+wg.Wait()                 // 阻塞到计数归零</code></pre>
+
+  <h3>2. Mutex：给共享变量上锁</h3>
+  <pre><code>var (
+    counter int
+    mu      sync.Mutex
+)
+
+mu.Lock()
+counter++        // 不是原子的！不加锁并发下会丢更新
+mu.Unlock()</code></pre>
+  <p>验证手段：<code>go run -race main.go</code>——竞态检测器，报 DATA RACE 就是锁没加对。</p>
+
+  <h3>3. select：多路复用</h3>
+  <pre><code>select {
+case v := &lt;-ch1:
+    fmt.Println("ch1 来了", v)
+case ch2 &lt;- 42:
+    fmt.Println("ch2 发出去了")
+case &lt;-time.After(3 * time.Second):
+    fmt.Println("超时")
+}</code></pre>
+
+  <h3>4. JS 对照</h3>
+  <div class="callout js">
+    <b>JS 对照</b>
+    <p><b>数据竞争是 JS 不存在的概念</b>——单线程下 counter++ 永远安全。Go 多核并行下两个协程同时 counter++ 会互相覆盖丢更新——不是崩溃，是<b>静默算错</b>，比崩溃可怕。原则：变量被多个协程读写 → 要么锁、要么收拢到单协程经 channel 访问。</p>
+    <p>select ≈ <code>Promise.race</code>（谁先到处理谁，time.After 分支 = 超时兜底）；WaitGroup ≈ <code>Promise.all</code>。</p>
+  </div>
+
+  <h3>5. back 对照 + 练习</h3>
+  <div class="callout back">
+    <b>back 真实代码</b>
+    <p>smb/svac 的 MQTT 客户端、定时任务靠 WaitGroup 管理协程生命周期；net_scan 的后台扫描 scheduler 用 channel + select + context 做可取消任务。</p>
+  </div>
+  <div class="callout ex">
+    <b>练习 · code/10-channel/</b>
+    <ol>
+      <li>用 WaitGroup 重写练习 1 的 10 协程等待（对比 sleep 土办法）</li>
+      <li>竞态实验：1000 个协程不加锁 counter++，跑 -race 看 DATA RACE + 结果小于 1000；加 Mutex 修复</li>
+      <li>select 超时：channel 慢发送 + time.After(1s) 分支，观察超时兜底</li>
+      <li>思考题：为什么 counter++ 不是原子的？（提示：读-改-写三步）</li>
+    </ol>
+    <p>完成 = 阶段 4 结业。</p>
+  </div>
+
+  <div class="pager"><a href="stage-3.html">← 阶段 3 · 方法接口与错误处理</a><a href="stage-5.html">阶段 5 · 工程化 →</a></div>
+  <footer class="colophon">进度源文档：<code>go/学习进度.md</code></footer>
+</main>
+</body>
+</html>

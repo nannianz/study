@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>阶段 6 · Web 后台实战 — Go 从零学习</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<nav class="sidebar">
+  <a class="brand" href="index.html">Go 从零学习<span>JS 背景 → 满足后台开发要求</span></a>
+  <ol class="nav">
+    <li><a href="index.html">总览 · 学习计划</a></li>
+    <li><details>
+      <summary><a href="stage-0.html">阶段 0 · 环境搭建</a><em class="st done">完成</em></summary>
+      <ul class="sub">
+        <li><a href="stage-0.html#checklist">章节清单</a></li>
+        <li><a href="stage-0.html#trouble">排障实录</a></li>
+      </ul>
+    </details></li>
+    <li><details>
+      <summary><a href="stage-1.html">阶段 1 · 语法基础</a><em class="st done">完成</em></summary>
+      <ul class="sub">
+        <li><a href="stage-1.html#checklist">章节清单</a></li>
+        <li><a href="stage-1.html#l1">第一课 · 变量与类型</a></li>
+        <li><a href="stage-1.html#l2">第二课 · 常量与运算符</a></li>
+        <li><a href="stage-1.html#supp">补充 · 条件循环函数</a></li>
+      </ul>
+    </details></li>
+    <li><details>
+      <summary><a href="stage-2.html">阶段 2 · 核心数据结构</a><em class="st doing">进行中</em></summary>
+      <ul class="sub">
+        <li><a href="stage-2.html#checklist">章节清单</a></li>
+        <li><a href="stage-2.html#l1">第一课 · 数组与切片</a></li>
+        <li><a href="stage-2.html#l2">第二课 · map 与 range</a></li>
+        <li><a href="stage-2.html#l3">第三课 · 结构体</a></li>
+        <li><a href="stage-2.html#l4">第四课 · 指针与转换</a></li>
+      </ul>
+    </details></li>
+    <li><details>
+      <summary><a href="stage-3.html">阶段 3 · 方法接口与错误处理</a></summary>
+      <ul class="sub">
+        <li><a href="stage-3.html#checklist">章节清单</a></li>
+        <li><a href="stage-3.html#l1">第一课 · 方法与组合</a></li>
+        <li><a href="stage-3.html#l2">第二课 · 接口与断言</a></li>
+        <li><a href="stage-3.html#l3">第三课 · 错误处理</a></li>
+        <li><a href="stage-3.html#l4">第四课 · 泛型·递归·正则</a></li>
+      </ul>
+    </details></li>
+    <li><details>
+      <summary><a href="stage-4.html">阶段 4 · 并发</a></summary>
+      <ul class="sub">
+        <li><a href="stage-4.html#checklist">章节清单</a></li>
+        <li><a href="stage-4.html#l1">第一课 · goroutine 与 channel</a></li>
+        <li><a href="stage-4.html#l2">第二课 · sync 与 select</a></li>
+      </ul>
+    </details></li>
+    <li><details>
+      <summary><a href="stage-5.html">阶段 5 · 工程化</a></summary>
+      <ul class="sub">
+        <li><a href="stage-5.html#checklist">章节清单</a></li>
+        <li><a href="stage-5.html#l1">第一课 · 包·模块·文件</a></li>
+        <li><a href="stage-5.html#l2">第二课 · 单元测试</a></li>
+      </ul>
+    </details></li>
+    <li><details open>
+      <summary><a class="active" href="stage-6.html">阶段 6 · Web 后台实战</a></summary>
+      <ul class="sub">
+        <li><a href="stage-6.html#checklist">章节清单</a></li>
+        <li><a href="stage-6.html#l1">第一课 · net/http 裸写</a></li>
+        <li><a href="stage-6.html#l2">第二课 · gin 框架</a></li>
+        <li><a href="stage-6.html#l3">第三课 · gorm ORM</a></li>
+        <li><a href="stage-6.html#l4">第四课 · 分层与毕业作品</a></li>
+      </ul>
+    </details></li>
+    <li><details>
+      <summary><a href="stage-7.html">阶段 7 · 精读 smb</a></summary>
+      <ul class="sub">
+        <li><a href="stage-7.html#checklist">章节清单</a></li>
+        <li><a href="stage-7.html#l1">第一课 · fx 依赖注入</a></li>
+        <li><a href="stage-7.html#l2">第二课 · 泛型仓储精读</a></li>
+        <li><a href="stage-7.html#l3">第三课 · casbin 与 MQTT</a></li>
+        <li><a href="stage-7.html#l4">第四课 · 毕业精读</a></li>
+      </ul>
+    </details></li>
+  </ol>
+</nav>
+<main>
+  <h1>阶段 6 · Web 后台实战</h1>
+  <p class="sub">超出 runoob，直接面向开发要求。目标：写出完整 CRUD 服务，打通「请求 → 分层 → 数据库 → 响应」全链路。<span class="chip todo">未开始</span></p>
+
+  <h2 id="checklist">checklist</h2>
+  <ul class="tasks">
+    <li class="todo">net/http 标准库：自己裸写一个最小 HTTP 服务（理解 gin 帮你省了什么）</li>
+    <li class="todo">gin 入门：路由、路径参数 <code>g.Param</code>、查询参数 <code>g.Query</code>、<code>BindJSON</code>、<code>c.JSON</code>、中间件、<code>gin.H</code></li>
+    <li class="todo">gorm 入门：模型定义、AutoMigrate、Create/Find/Update/Delete</li>
+    <li class="todo">分层架构：cmd → api(路由注册) → controller → service → repo → entity（对齐 back 的目录组织）</li>
+    <li class="todo">终极练习：仿 net_scan 写 <code>code/16-gin-crud/</code>——Device 管理迷你服务（列表/创建/删除 + 模糊查询）</li>
+  </ul>
+
+  <h2>JS 对照重点</h2>
+  <div class="callout js">
+    <b>JS 对照</b>
+    <p>gin ≈ Express/Koa：RouterGroup ≈ Router 挂载、中间件洋葱模型 vs gin 的 Next 链、<code>c.JSON</code> ≈ <code>res.json</code>。</p>
+    <p>BindJSON ≈ body-parser + 手动校验；DTO struct 的 tag 就是校验规则位置。</p>
+    <p>gorm ≈ Sequelize/TypeORM：模型定义、关联、迁移。</p>
+  </div>
+
+  <h2>back 对照（全链路精读）</h2>
+  <div class="callout back">
+    <b>back 真实代码</b>
+    <p><b>net_scan</b>：<code>backend/cmd/server/main.go</code>（入口）→ <code>internal/api/handlers.go</code>（路由+handler）→ <code>internal/storage/db.go</code>（模型）——一条请求的完整一生。</p>
+    <p><b>smb</b>：<code>smb_server/api/restserver.go</code>（路由注册）→ <code>internal/controller/sitecontroller.go</code>（controller）→ <code>internal/service/siteservice.go</code>（service）→ <code>internal/model/entity/site.go</code>（entity）——对照自己写的分层找差异。</p>
+  </div>
+
+  <h2 id="l1">第一课 · net/http 裸写 <span class="chip todo">讲义就绪 · 未开课</span></h2>
+  <p class="sub">实战热身：不用框架写一个 HTTP 服务，知道 gin 帮你省了什么。练习并入 code/13-gin/。</p>
+
+  <pre><code>func main() {
+    http.HandleFunc("/api/devices", func(w http.ResponseWriter, r *http.Request) {
+        switch r.Method {
+        case http.MethodGet:
+            w.Header().Set("Content-Type", "application/json")
+            json.NewEncoder(w).Encode([]string{"d1", "d2"})
+        case http.MethodPost:
+            var d Device
+            json.NewDecoder(r.Body).Decode(&amp;d)
+            w.WriteHeader(http.StatusCreated)
+        }
+    })
+    http.ListenAndServe(":8080", nil)
+}</code></pre>
+  <div class="callout js">
+    <b>JS 对照</b>
+    <p>≈ node 原生 http.createServer + 手动路由——没框架时 Node 也这么苦。痛点同步显现：路由参数要手切 URL、中间件要手串、没有统一 JSON 响应。这些痛点就是 gin 存在的意义，下节课逐一对照。</p>
+  </div>
+  <div class="callout back">
+    <b>back 对照</b>
+    <p>标准库的 Handler 接口 <code>ServeHTTP(w, r)</code> 是一切 Go Web 框架的地基——gin 的 engine 实现的就是它。</p>
+  </div>
+
+  <h2 id="l2">第二课 · gin 框架 <span class="chip todo">讲义就绪 · 未开课</span></h2>
+  <p class="sub">练习落在 code/13-gin/。net_scan/smb 的骨架。</p>
+
+  <h3>1. 路由与参数</h3>
+  <pre><code>r := gin.Default()                          // 自带 Logger + Recovery 中间件
+
+api := r.Group("/api/v1")                   // 路由组 ≈ Router 挂载
+{
+    api.GET("/sites/:site_id", getSite)     // 路径参数
+    api.POST("/sites", createSite)
+    api.PATCH("/sites/:site_id", updateSite)
+}
+
+func getSite(g *gin.Context) {              // handler：*gin.Context 是一切
+    id := g.Param("site_id")                // 路径参数
+    page := g.Query("page")                 // 查询参数 ?page=2
+    req := &amp;UpdateRequest{}
+    g.BindJSON(req)                          // body → struct（binding tag 校验）
+    g.JSON(200, gin.H{"id": id, "page": page})   // 响应 ≈ res.json()
+}</code></pre>
+
+  <h3>2. 中间件</h3>
+  <pre><code>r.Use(func(c *gin.Context) {
+    start := time.Now()
+    c.Next()                                 // 放行给后续 handler
+    log.Println(time.Since(start))           // 回来记耗时
+})</code></pre>
+
+  <h3>3. JS 对照</h3>
+  <div class="callout js">
+    <b>JS 对照（Express 老家）</b>
+    <p>RouterGroup ≈ express.Router()；g.Param("id") ≈ req.params.id；g.Query ≈ req.query；BindJSON ≈ body-parser + 校验（校验规则写在 struct tag：<code>binding:"required"</code>）；c.Next() 中间件链 ≈ next()（gin 是先序+后序两段，不是真洋葱）；gin.H ≈ 直接 res.json({...})。</p>
+    <p><b>易踩坑</b>：handler 忘 return 是经典 bug——c.JSON 只是写响应不中断函数，后面再写一个 c.JSON 就 double write（back 源码每个错误分支都紧跟 return 的原因）。</p>
+  </div>
+
+  <h3>4. back 真实代码</h3>
+  <div class="callout back">
+    <b>back 真实代码</b>
+    <p>net_scan 的函数式 handler（结构最简）：</p>
+    <pre><code>func GetDevices(c *gin.Context) {
+    repo := storage.NewRepository()
+    filter := storage.DeviceFilter{Q: c.Query("q")}
+    result, err := repo.ListDevices(c.Request.Context(), filter, ...)
+    if err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+        return
+    }
+    c.JSON(http.StatusOK, result)
+}</code></pre>
+    <p>smb 的路由注册（组 → controller 循环）：<code>groups["/api/v1"]</code> 传给每个 controller 的 RegisterRoutes——接口 + 隐式实现 + map 在真实框架里的合体。</p>
+  </div>
+
+  <h3>5. 练习</h3>
+  <div class="callout ex">
+    <b>练习 · code/13-gin/</b>
+    <ol>
+      <li>起服务：GET /api/devices 返回硬编码列表、POST /api/devices 用 BindJSON 收 Device 回显</li>
+      <li>路径参数版 GET /api/devices/:id、查询参数 ?q= 过滤</li>
+      <li>写一个耗时中间件 + 一个 token 校验失败中间件（401）</li>
+      <li>binding:"required" 体验：POST 空 body 看自动 400</li>
+    </ol>
+  </div>
+
+  <h2 id="l3">第三课 · gorm ORM <span class="chip todo">讲义就绪 · 未开课</span></h2>
+  <p class="sub">练习落在 code/14-gorm/（sqlite 免装数据库）。</p>
+
+  <h3>1. 连接 + 建表 + CRUD 四式</h3>
+  <pre><code>db, err := gorm.Open(sqlite.Open("dev.db"), &amp;gorm.Config{})
+db.AutoMigrate(&amp;Device{})            // 按 struct + gorm tag 建表
+
+db.Create(&amp;Device{Name: "AP1", Price: 99})           // INSERT
+db.First(&amp;d, "name = ?", "AP1")                     // SELECT 单条（? 占位防注入）
+db.Model(&amp;d).Update("price", 79)                    // UPDATE
+db.Where("price &gt; ?", 50).Find(&amp;list)               // SELECT 列表
+db.Delete(&amp;d)                                       // DELETE</code></pre>
+
+  <h3>2. JS 对照</h3>
+  <div class="callout js">
+    <b>JS 对照</b>
+    <p>gorm ≈ Sequelize/TypeORM：模型定义（struct+tag ≈ Model+装饰器）、关联、迁移。坑也同款：复杂查询生成的 SQL 不直观，要开日志看真身（<code>db.Debug()</code> ≈ Sequelize logging）。<code>?</code> 占位符 ≈ 参数化查询，字符串拼接 SQL 在两边都是安全红线。</p>
+  </div>
+
+  <h3>3. back 对照</h3>
+  <div class="callout back">
+    <b>back 真实代码</b>
+    <p>smb 不直接用 gorm 裸 API，而是套了 gobase 泛型仓储（Insert/FindByWhere...），底层还是 gorm——阶段 7 精读拆洋葱。net_scan 更直接：storage 包里就是 gorm 标准用法，先读它。</p>
+  </div>
+
+  <h3>4. 练习</h3>
+  <div class="callout ex">
+    <b>练习 · code/14-gorm/</b>
+    <ol>
+      <li>sqlite + AutoMigrate 建 Device 表，插入 3 条</li>
+      <li>四式全跑：First / Where().Find() / Update / Delete</li>
+      <li>给 Name 加 unique tag，插重复值看 err，练习 errors 处理</li>
+    </ol>
+  </div>
+
+  <h2 id="l4">第四课 · 分层架构与终极练习 <span class="chip todo">讲义就绪 · 未开课</span></h2>
+  <p class="sub">练习落在 code/15-gin-crud/——阶段 6 毕业作品。</p>
+
+  <h3>1. back 的分层地图</h3>
+  <pre><code>cmd/boot.go        入口：组装依赖、启动
+api/restserver.go  路由注册：gin 分组 → 各 controller
+controller/        参数解析、校验、调 service、统一响应
+service/           业务逻辑、事务、DTO 定义
+repo/              数据访问（smb: 泛型仓储 / net_scan: storage 包）
+model/entity/      struct + 双 tag（阶段 2 精读过的 Site）</code></pre>
+  <p>一次请求的一生：HTTP → 路由匹配 → controller 解参数 → service 干业务 → repo 读写库 → 原路返回 JSON。每层单向依赖，entity 被所有人引用。</p>
+  <div class="callout js">
+    <b>JS 对照</b>
+    <p>≈ 前端分层心智：routes → pages → api/services → store——只是方向从「渲染」换成「数据处理」。</p>
+  </div>
+
+  <h3>2. 终极练习：Device 管理迷你服务</h3>
+  <div class="callout ex">
+    <b>code/15-gin-crud/ —— 毕业作品</b>
+    <p>仿 net_scan 分层写完整 CRUD 服务（main.go + handlers.go + storage.go 起步）：</p>
+    <ol>
+      <li>GET /api/devices：列表 + ?q= 模糊查询 + 分页</li>
+      <li>POST /api/devices：BindJSON + 校验 + 落库</li>
+      <li>PATCH /api/devices/:id：部分更新（指针字段 + omitempty——smb DTO 同款技巧）</li>
+      <li>DELETE /api/devices/:id</li>
+      <li>统一错误响应：定义 ErrCode 常量 + 错误码函数（抄 smb errcode 思路）</li>
+      <li>加一个中间件打请求日志（requestID 随机生成塞 header）</li>
+    </ol>
+    <p>验收标准：curl/浏览器全流程走通 + 每层职责清晰（controller 无业务逻辑、service 无 SQL）。</p>
+  </div>
+  <div class="callout back">
+    <b>back 对照</b>
+    <p>写完后精读对照：net_scan handlers.go ↔ 你的 handlers；smb sitecontroller/siteservice ↔ 你的 service。能说出「它为什么这么分」即阶段 6 结业。</p>
+  </div>
+
+  <div class="pager"><a href="stage-5.html">← 阶段 5 · 工程化</a><a href="stage-7.html">阶段 7 · 精读 smb →</a></div>
+  <footer class="colophon">进度源文档：<code>go/学习进度.md</code></footer>
+</main>
+</body>
+</html>

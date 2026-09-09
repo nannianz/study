@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>阶段 7 · 进阶选修：精读 smb — Go 从零学习</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<nav class="sidebar">
+  <a class="brand" href="index.html">Go 从零学习<span>JS 背景 → 满足后台开发要求</span></a>
+  <ol class="nav">
+    <li><a href="index.html">总览 · 学习计划</a></li>
+    <li><details>
+      <summary><a href="stage-0.html">阶段 0 · 环境搭建</a><em class="st done">完成</em></summary>
+      <ul class="sub">
+        <li><a href="stage-0.html#checklist">章节清单</a></li>
+        <li><a href="stage-0.html#trouble">排障实录</a></li>
+      </ul>
+    </details></li>
+    <li><details>
+      <summary><a href="stage-1.html">阶段 1 · 语法基础</a><em class="st done">完成</em></summary>
+      <ul class="sub">
+        <li><a href="stage-1.html#checklist">章节清单</a></li>
+        <li><a href="stage-1.html#l1">第一课 · 变量与类型</a></li>
+        <li><a href="stage-1.html#l2">第二课 · 常量与运算符</a></li>
+        <li><a href="stage-1.html#supp">补充 · 条件循环函数</a></li>
+      </ul>
+    </details></li>
+    <li><details>
+      <summary><a href="stage-2.html">阶段 2 · 核心数据结构</a><em class="st doing">进行中</em></summary>
+      <ul class="sub">
+        <li><a href="stage-2.html#checklist">章节清单</a></li>
+        <li><a href="stage-2.html#l1">第一课 · 数组与切片</a></li>
+        <li><a href="stage-2.html#l2">第二课 · map 与 range</a></li>
+        <li><a href="stage-2.html#l3">第三课 · 结构体</a></li>
+        <li><a href="stage-2.html#l4">第四课 · 指针与转换</a></li>
+      </ul>
+    </details></li>
+    <li><details>
+      <summary><a href="stage-3.html">阶段 3 · 方法接口与错误处理</a></summary>
+      <ul class="sub">
+        <li><a href="stage-3.html#checklist">章节清单</a></li>
+        <li><a href="stage-3.html#l1">第一课 · 方法与组合</a></li>
+        <li><a href="stage-3.html#l2">第二课 · 接口与断言</a></li>
+        <li><a href="stage-3.html#l3">第三课 · 错误处理</a></li>
+        <li><a href="stage-3.html#l4">第四课 · 泛型·递归·正则</a></li>
+      </ul>
+    </details></li>
+    <li><details>
+      <summary><a href="stage-4.html">阶段 4 · 并发</a></summary>
+      <ul class="sub">
+        <li><a href="stage-4.html#checklist">章节清单</a></li>
+        <li><a href="stage-4.html#l1">第一课 · goroutine 与 channel</a></li>
+        <li><a href="stage-4.html#l2">第二课 · sync 与 select</a></li>
+      </ul>
+    </details></li>
+    <li><details>
+      <summary><a href="stage-5.html">阶段 5 · 工程化</a></summary>
+      <ul class="sub">
+        <li><a href="stage-5.html#checklist">章节清单</a></li>
+        <li><a href="stage-5.html#l1">第一课 · 包·模块·文件</a></li>
+        <li><a href="stage-5.html#l2">第二课 · 单元测试</a></li>
+      </ul>
+    </details></li>
+    <li><details>
+      <summary><a href="stage-6.html">阶段 6 · Web 后台实战</a></summary>
+      <ul class="sub">
+        <li><a href="stage-6.html#checklist">章节清单</a></li>
+        <li><a href="stage-6.html#l1">第一课 · net/http 裸写</a></li>
+        <li><a href="stage-6.html#l2">第二课 · gin 框架</a></li>
+        <li><a href="stage-6.html#l3">第三课 · gorm ORM</a></li>
+        <li><a href="stage-6.html#l4">第四课 · 分层与毕业作品</a></li>
+      </ul>
+    </details></li>
+    <li><details open>
+      <summary><a class="active" href="stage-7.html">阶段 7 · 精读 smb</a></summary>
+      <ul class="sub">
+        <li><a href="stage-7.html#checklist">章节清单</a></li>
+        <li><a href="stage-7.html#l1">第一课 · fx 依赖注入</a></li>
+        <li><a href="stage-7.html#l2">第二课 · 泛型仓储精读</a></li>
+        <li><a href="stage-7.html#l3">第三课 · casbin 与 MQTT</a></li>
+        <li><a href="stage-7.html#l4">第四课 · 毕业精读</a></li>
+      </ul>
+    </details></li>
+  </ol>
+</nav>
+<main>
+  <h1>阶段 7（进阶选修）· 读懂 smb 的全部机关</h1>
+  <p class="sub">目标：smb 达到「能改需求」水平。前置：阶段 6 完成。<span class="chip todo">未开始</span></p>
+
+  <h2 id="checklist">checklist</h2>
+  <ul class="tasks">
+    <li class="todo">uber/fx 依赖注入：为什么 boot.go 里全是 <code>container.Add(...)</code>、<code>fx.Invoke</code></li>
+    <li class="todo">gobase quickstart 启动框架：<code>modules/quick-start/di.go</code></li>
+    <li class="todo">泛型仓储细节：<code>PostgreSqlDB[T]</code> 的 Insert/FindByWhere 等</li>
+    <li class="todo">casbin 权限模型：RBAC 在 smb 里怎么落地</li>
+    <li class="todo">MQTT：smb 的 <code>apiac</code> HTTP-over-MQTT 代理</li>
+    <li class="todo">毕业精读：挑一个完整功能（如 Site 更新），从路由到数据库逐行讲透</li>
+  </ul>
+
+  <h2>JS 对照重点</h2>
+  <div class="callout js">
+    <b>JS 对照</b>
+    <p>依赖注入 vs JS 手动 new / 前端 IoC 容器（如 Angular DI 的影子）。</p>
+  </div>
+
+  <h2 id="l1">第一课 · uber/fx 依赖注入 <span class="chip todo">讲义就绪 · 未开课</span></h2>
+  <p class="sub">读懂 boot.go 里的 container.Add / fx.Invoke。</p>
+
+  <pre><code>// smb boot.go 的骨架（简化）
+container := cmds.NewRoot(...)
+container.Add(
+    config.Module(),      // 每个模块声明自己提供什么
+    pgsql.Module(),
+    controller.Module(),
+)
+container.Invoke(func(eng *gin.Engine, cs []controller.Controller) {
+    // fx 自动按类型把依赖注进来 → 注册路由 → 启动
+})</code></pre>
+  <p>fx 核心两件事：① 扫描所有 Module 声明的「提供者」（构造函数）；② 按参数类型自动连线组装，缺依赖/循环依赖启动时报错。相当于一个自动 new 的总装车间。</p>
+  <div class="callout js">
+    <b>JS 对照</b>
+    <p>≈ Angular 的 DI 容器（按 token 注入）或 NestJS 的 Provider。没有 DI 时你得在 main 里手动 new Repo → new Service(repo) → new Controller(service) 一层层穿针引线（net_scan 就是手动的，所以它好读；smb 服务多，用 fx 省心）。</p>
+  </div>
+  <div class="callout back">
+    <b>back 对照</b>
+    <p>gobase 的 modules/quick-start/di.go 是 fx 封装的启动框架；smb 与 svac 的 boot.go 都靠它。读法：先看每个包的 di.go（Module() 里 Provide 了什么），再回 boot.go 看总装清单。</p>
+  </div>
+
+  <h2 id="l2">第二课 · 泛型仓储精读 <span class="chip todo">讲义就绪 · 未开课</span></h2>
+  <p class="sub">gobase/modules/pgsql/repository.go 逐方法拆解。</p>
+  <p>阶段 3 认过 <code>PostgreSqlRepo[T]</code> 的脸，这节读实现：Insert 怎么落到 gorm、FindByWhere 的 where 参数为什么是 <code>...interface{}</code>（可变参数 + 任意类型占位）、事务怎么在泛型层封装。精读目标：service 层一行 <code>siteRepo.FindByWhere(ctx, "org_id = ?", orgID)</code> 背后发生了什么全部说得清。</p>
+  <div class="callout js">
+    <b>JS 对照</b>
+    <p>≈ 通用的 Repository&lt;T&gt; 基类（TypeORM 的 BaseRepository 同思路），Go 用泛型 + 接口组合达成。</p>
+  </div>
+
+  <h2 id="l3">第三课 · casbin 权限与 MQTT <span class="chip todo">讲义就绪 · 未开课</span></h2>
+
+  <h3>casbin：RBAC 的落地</h3>
+  <pre><code>enforcer.Enforce(userID, resource, action)   // 用户能不能干这件事</code></pre>
+  <p>casbin 把「谁-能对-什么-做什么」抽象成策略模型（model.conf）+ 策略表；smb 的 security/ 目录是它的封装层（登录、token、中间件一整套）。前端同事熟悉的「菜单权限」在后端就是这一行判断。</p>
+
+  <h3>MQTT：设备消息总线</h3>
+  <p>smb 管理的 AC 设备跑在 MQTT 上——设备的 HTTP API 被「HTTP-over-MQTT」代理（apiac 路由组）：前端请求 → smb 转成 MQTT 消息发设备 → 设备回消息 → smb 转回 HTTP 响应。并发课的 channel 在这里全是实战。</p>
+  <div class="callout js">
+    <b>JS 对照</b>
+    <p>casbin 有 JS 版（同一套策略文件前后端通用）；MQTT ≈ WebSocket 的发布/订阅版（topic 就是频道）。</p>
+  </div>
+
+  <h2 id="l4">第四课 · 毕业精读：Site 更新全链路 <span class="chip todo">讲义就绪 · 未开课</span></h2>
+  <div class="callout ex">
+    <b>毕业设计 · 无代码，纯阅读</b>
+    <p>把阶段 1~6 学的全部语法对号入座，沿一条 PATCH /api/v1/sites/{site_id} 请求走完全程：</p>
+    <ol>
+      <li>restserver.go：路由组怎么建、UpdateSite 怎么挂上去</li>
+      <li>sitecontroller.go：g.Param / BindJSON / logger.Errorf / RetJSON（阶段 1~3 的语法全家桶）</li>
+      <li>siteservice.go：UpdateSiteRequest 的指针字段 PATCH 语义、事务、casbin 检查、泛型仓储调用</li>
+      <li>entity/site.go：双 tag 落到 PostgreSQL 的最终形态</li>
+      <li>反向验证：合上代码，画出这条请求的分层流转图</li>
+    </ol>
+    <p><b>验收标准</b>：任意挑一层你能讲清「它做什么、为什么在这层、参数从哪来到哪去」——达到「能改需求」水平，全部课程结业 🎓</p>
+  </div>
+
+  <div class="pager"><a href="stage-6.html">← 阶段 6 · Web 后台实战</a><span></span></div>
+  <footer class="colophon">进度源文档：<code>go/学习进度.md</code></footer>
+</main>
+</body>
+</html>

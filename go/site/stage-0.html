@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>阶段 0 · 环境搭建 — Go 从零学习</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<nav class="sidebar">
+  <a class="brand" href="index.html">Go 从零学习<span>JS 背景 → 满足后台开发要求</span></a>
+  <ol class="nav">
+    <li><a href="index.html">总览 · 学习计划</a></li>
+    <li><details open>
+      <summary><a class="active" href="stage-0.html">阶段 0 · 环境搭建</a><em class="st done">完成</em></summary>
+      <ul class="sub">
+        <li><a href="stage-0.html#checklist">章节清单</a></li>
+        <li><a href="stage-0.html#trouble">排障实录</a></li>
+      </ul>
+    </details></li>
+    <li><details>
+      <summary><a href="stage-1.html">阶段 1 · 语法基础</a><em class="st done">完成</em></summary>
+      <ul class="sub">
+        <li><a href="stage-1.html#checklist">章节清单</a></li>
+        <li><a href="stage-1.html#l1">第一课 · 变量与类型</a></li>
+        <li><a href="stage-1.html#l2">第二课 · 常量与运算符</a></li>
+        <li><a href="stage-1.html#supp">补充 · 条件循环函数</a></li>
+      </ul>
+    </details></li>
+    <li><details>
+      <summary><a href="stage-2.html">阶段 2 · 核心数据结构</a><em class="st doing">进行中</em></summary>
+      <ul class="sub">
+        <li><a href="stage-2.html#checklist">章节清单</a></li>
+        <li><a href="stage-2.html#l1">第一课 · 数组与切片</a></li>
+        <li><a href="stage-2.html#l2">第二课 · map 与 range</a></li>
+        <li><a href="stage-2.html#l3">第三课 · 结构体</a></li>
+        <li><a href="stage-2.html#l4">第四课 · 指针与转换</a></li>
+      </ul>
+    </details></li>
+    <li><details>
+      <summary><a href="stage-3.html">阶段 3 · 方法接口与错误处理</a></summary>
+      <ul class="sub">
+        <li><a href="stage-3.html#checklist">章节清单</a></li>
+        <li><a href="stage-3.html#l1">第一课 · 方法与组合</a></li>
+        <li><a href="stage-3.html#l2">第二课 · 接口与断言</a></li>
+        <li><a href="stage-3.html#l3">第三课 · 错误处理</a></li>
+        <li><a href="stage-3.html#l4">第四课 · 泛型·递归·正则</a></li>
+      </ul>
+    </details></li>
+    <li><details>
+      <summary><a href="stage-4.html">阶段 4 · 并发</a></summary>
+      <ul class="sub">
+        <li><a href="stage-4.html#checklist">章节清单</a></li>
+        <li><a href="stage-4.html#l1">第一课 · goroutine 与 channel</a></li>
+        <li><a href="stage-4.html#l2">第二课 · sync 与 select</a></li>
+      </ul>
+    </details></li>
+    <li><details>
+      <summary><a href="stage-5.html">阶段 5 · 工程化</a></summary>
+      <ul class="sub">
+        <li><a href="stage-5.html#checklist">章节清单</a></li>
+        <li><a href="stage-5.html#l1">第一课 · 包·模块·文件</a></li>
+        <li><a href="stage-5.html#l2">第二课 · 单元测试</a></li>
+      </ul>
+    </details></li>
+    <li><details>
+      <summary><a href="stage-6.html">阶段 6 · Web 后台实战</a></summary>
+      <ul class="sub">
+        <li><a href="stage-6.html#checklist">章节清单</a></li>
+        <li><a href="stage-6.html#l1">第一课 · net/http 裸写</a></li>
+        <li><a href="stage-6.html#l2">第二课 · gin 框架</a></li>
+        <li><a href="stage-6.html#l3">第三课 · gorm ORM</a></li>
+        <li><a href="stage-6.html#l4">第四课 · 分层与毕业作品</a></li>
+      </ul>
+    </details></li>
+    <li><details>
+      <summary><a href="stage-7.html">阶段 7 · 精读 smb</a></summary>
+      <ul class="sub">
+        <li><a href="stage-7.html#checklist">章节清单</a></li>
+        <li><a href="stage-7.html#l1">第一课 · fx 依赖注入</a></li>
+        <li><a href="stage-7.html#l2">第二课 · 泛型仓储精读</a></li>
+        <li><a href="stage-7.html#l3">第三课 · casbin 与 MQTT</a></li>
+        <li><a href="stage-7.html#l4">第四课 · 毕业精读</a></li>
+      </ul>
+    </details></li>
+  </ol>
+</nav>
+<main>
+  <h1>阶段 0 · 环境搭建与第一个程序</h1>
+  <p class="sub">目标：Go 装好、编辑器能写能跑、理解 go mod 是什么。<span class="chip done">已完成 · 2026-09-02 结业</span></p>
+
+  <h2 id="checklist">章节 checklist</h2>
+  <ul class="tasks">
+    <li class="done">Go 简介（runoob ch2）：Go 是什么、为什么后台开发用它<span class="note">动机与特性随排障实操带出，结业勾选</span></li>
+    <li class="done">Windows 安装 Go（ch3）：下载 msi → 安装 → <code>go version</code> 验证 → <code>GOPROXY=https://goproxy.cn,direct</code>
+      <span class="note">2026-08-31 完成。版本统一为 1.27.0（windows/amd64）。插曲见下方排障实录。</span></li>
+    <li class="done">VSCode / Trae + Go 扩展 + gopls（ch4/ch34）
+      <span class="note">gopls.exe 已装、Trae 补全验证通过（2026-09-02）。</span></li>
+    <li class="done">Go 语言结构（ch5）：package / import / func main 三件套（通过 hello world 排障实操掌握）</li>
+    <li class="done">Go Modules（ch33）：<code>go mod init gostudy</code>、go.mod 与 go.sum</li>
+    <li class="done"><code>go run</code> / <code>go build</code>（2026-09-01 跑出 Hello, World!）</li>
+  </ul>
+
+  <h2>JS 对照点</h2>
+  <div class="callout js">
+    <b>JS 对照</b>
+    <p><code>go.mod</code> ≈ <code>package.json</code>；<code>go.sum</code> ≈ <code>package-lock.json</code>。</p>
+    <p><code>go run .</code> ≈ <code>node xxx.js</code>；<code>go build</code> ≈ 打包可执行文件（JS 最接近的是 pkg/nexe，但 Go 是原生能力）。</p>
+    <p>gofmt 强制统一格式——Go 世界没有 prettier 之争，缩进、大括号位置没有讨论空间。</p>
+  </div>
+
+  <h2>back 对照</h2>
+  <div class="callout back">
+    <b>back 真实代码</b>
+    <p><code>D:\project\back\smb\go.mod</code>：读懂真实项目的依赖清单（module 名、go 版本、require 列表 ≈ dependencies）。</p>
+  </div>
+
+  <h2>练习</h2>
+  <div class="callout ex">
+    <b>练习</b>
+    <p><code>code/01-hello/main.go</code> ✅ 已跑通（2026-09-01）。</p>
+  </div>
+
+  <h2 id="trouble">排障实录（比计划本身更值钱的三课）</h2>
+  <p class="sub">阶段 0 实际执行中踩的三个坑，全部复盘归档。每个都是很多人写半年也未必全遇上的实战知识。</p>
+
+  <div class="case">
+    <h3>案例一：装完 Go，终端里却「找不到 go」</h3>
+    <p><b>症状</b>：msi 安装成功，<code>go version</code> 报「不是内部或外部命令」。</p>
+    <p><b>根因</b>：环境变量快照。安装器把 <code>C:\Program Files\Go\bin</code> 写进<b>注册表</b>里的系统 PATH，但 PATH 不是实时读取的——每个终端/程序<b>启动时拷贝一份快照</b>，之后永不更新。安装前就开着的终端里，go 命令自然「不存在」。</p>
+    <p><b>解法</b>：关掉所有旧终端重开；IDE 要重启<b>整个程序</b>（只关终端标签页没用，托盘图标也要退出）。JS 同学其实早就遇过：装完 Node 不重开终端，<code>node -v</code> 一样报错。</p>
+  </div>
+
+  <div class="case">
+    <h3>案例二：一台机器，两份 Go</h3>
+    <p><b>症状</b>：Trae 终端里 <code>go version</code> 是 1.25.9，系统 PowerShell 里是 1.27.0。</p>
+    <p><b>根因</b>：Trae 的「AI 装环境」把一份独立 SDK 装到了 <code>C:\Users\admin\sdk\go1.25.9</code>，并注入它自己的集成终端；后来手动 msi 装的 1.27.0 在 <code>C:\Program Files\Go</code>。两份工具链互不知晓。用 nvm 类比：一份是 nvm 装的 node，一份是官网直装版。</p>
+    <p><b>解法</b>：删掉 <code>C:\Users\admin\sdk\go1.25.9</code> 与 <code>~/go/bin/linux_arm64</code>（Trae 留下的怪文件），重启 Trae，全机一份 Go。</p>
+  </div>
+
+  <div class="case">
+    <h3>案例三：exe「消失」疑云——GOOS/GOARCH 交叉编译幽灵</h3>
+    <p><b>症状</b>：<code>go run</code> 报 <code>executable file not found in %PATH%</code>；<code>go build</code> 产物无 .exe 后缀、双击/执行都报不是有效程序。最初怀疑杀毒软件（腾讯管家）删临时 exe，<b>实验推翻</b>：build 出的 exe 从未被删。</p>
+    <p><b>根因</b>：用户级环境变量被写入 <code>GOOS=linux</code>、<code>GOARCH=arm64</code>（同样是 Trae 装环境留下的）。效果是每一条编译命令都在<b>交叉编译成 Linux ARM64 二进制</b>（file 命令验明：ELF ARM aarch64）。Windows 认不出 Linux 格式，「找不到 exe」其实是「exe 是 Linux 的」。</p>
+    <p><b>解法</b>：删掉这两个用户级变量 + 换全新终端验证 <code>go env GOOS GOARCH</code> = windows/amd64。注意：删变量后<b>老终端仍显示旧值</b>——又是案例一的快照机制，第三次交手。</p>
+    <p><b>附赠知识</b>：交叉编译是 Go 的招牌能力——一条命令直接打出任意 OS/CPU 架构的可执行文件，不需要目标机工具链。正确用法是<b>命令前缀、单次生效</b>：<code>GOOS=linux GOARCH=arm64 go build</code>。以后给公司 ARM 架构网络设备（AC/交换机）打包 agent 全靠它。</p>
+  </div>
+
+  <div class="callout pit">
+    <b>复盘：环境变量的三层心智模型</b>
+    <p>① <b>进程快照</b>（改了注册表，老进程不知道）→ ② <b>用户级变量</b>（HKCU，只影响当前用户，本次事故现场）→ ③ <b>系统级变量</b>（HKLM，Machine PATH 里躺着 Go 的安装路径）。</p>
+    <p>go 命令自己的配置也有三层：<code>go env -w</code> 写的文件（~/AppData/Roaming/go/env）→ 环境变量 → 内置默认值。排查「工具行为诡异」时按层剥洋葱。</p>
+  </div>
+
+  <h2>收尾待办</h2>
+  <ul class="tasks">
+    <li class="done">删除项目目录残留的 Linux 二进制 <code>F:\MY\study\go\01-hello</code></li>
+    <li class="done">Trae 打开 main.go 验证补全/报错提示（无则装 Go 扩展 + Install All）</li>
+  </ul>
+
+  <div class="pager"><a href="index.html">← 总览</a><a href="stage-1.html">阶段 1 · 语法基础 →</a></div>
+  <footer class="colophon">进度源文档：<code>go/学习进度.md</code></footer>
+</main>
+</body>
+</html>

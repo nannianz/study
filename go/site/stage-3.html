@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>阶段 3 · 方法、接口与错误处理 — Go 从零学习</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<nav class="sidebar">
+  <a class="brand" href="index.html">Go 从零学习<span>JS 背景 → 满足后台开发要求</span></a>
+  <ol class="nav">
+    <li><a href="index.html">总览 · 学习计划</a></li>
+    <li><details>
+      <summary><a href="stage-0.html">阶段 0 · 环境搭建</a><em class="st done">完成</em></summary>
+      <ul class="sub">
+        <li><a href="stage-0.html#checklist">章节清单</a></li>
+        <li><a href="stage-0.html#trouble">排障实录</a></li>
+      </ul>
+    </details></li>
+    <li><details>
+      <summary><a href="stage-1.html">阶段 1 · 语法基础</a><em class="st done">完成</em></summary>
+      <ul class="sub">
+        <li><a href="stage-1.html#checklist">章节清单</a></li>
+        <li><a href="stage-1.html#l1">第一课 · 变量与类型</a></li>
+        <li><a href="stage-1.html#l2">第二课 · 常量与运算符</a></li>
+        <li><a href="stage-1.html#supp">补充 · 条件循环函数</a></li>
+      </ul>
+    </details></li>
+    <li><details>
+      <summary><a href="stage-2.html">阶段 2 · 核心数据结构</a><em class="st doing">进行中</em></summary>
+      <ul class="sub">
+        <li><a href="stage-2.html#checklist">章节清单</a></li>
+        <li><a href="stage-2.html#l1">第一课 · 数组与切片</a></li>
+        <li><a href="stage-2.html#l2">第二课 · map 与 range</a></li>
+        <li><a href="stage-2.html#l3">第三课 · 结构体</a></li>
+        <li><a href="stage-2.html#l4">第四课 · 指针与转换</a></li>
+      </ul>
+    </details></li>
+    <li><details open>
+      <summary><a class="active" href="stage-3.html">阶段 3 · 方法接口与错误处理</a></summary>
+      <ul class="sub">
+        <li><a href="stage-3.html#checklist">章节清单</a></li>
+        <li><a href="stage-3.html#l1">第一课 · 方法与组合</a></li>
+        <li><a href="stage-3.html#l2">第二课 · 接口与断言</a></li>
+        <li><a href="stage-3.html#l3">第三课 · 错误处理</a></li>
+        <li><a href="stage-3.html#l4">第四课 · 泛型·递归·正则</a></li>
+      </ul>
+    </details></li>
+    <li><details>
+      <summary><a href="stage-4.html">阶段 4 · 并发</a></summary>
+      <ul class="sub">
+        <li><a href="stage-4.html#checklist">章节清单</a></li>
+        <li><a href="stage-4.html#l1">第一课 · goroutine 与 channel</a></li>
+        <li><a href="stage-4.html#l2">第二课 · sync 与 select</a></li>
+      </ul>
+    </details></li>
+    <li><details>
+      <summary><a href="stage-5.html">阶段 5 · 工程化</a></summary>
+      <ul class="sub">
+        <li><a href="stage-5.html#checklist">章节清单</a></li>
+        <li><a href="stage-5.html#l1">第一课 · 包·模块·文件</a></li>
+        <li><a href="stage-5.html#l2">第二课 · 单元测试</a></li>
+      </ul>
+    </details></li>
+    <li><details>
+      <summary><a href="stage-6.html">阶段 6 · Web 后台实战</a></summary>
+      <ul class="sub">
+        <li><a href="stage-6.html#checklist">章节清单</a></li>
+        <li><a href="stage-6.html#l1">第一课 · net/http 裸写</a></li>
+        <li><a href="stage-6.html#l2">第二课 · gin 框架</a></li>
+        <li><a href="stage-6.html#l3">第三课 · gorm ORM</a></li>
+        <li><a href="stage-6.html#l4">第四课 · 分层与毕业作品</a></li>
+      </ul>
+    </details></li>
+    <li><details>
+      <summary><a href="stage-7.html">阶段 7 · 精读 smb</a></summary>
+      <ul class="sub">
+        <li><a href="stage-7.html#checklist">章节清单</a></li>
+        <li><a href="stage-7.html#l1">第一课 · fx 依赖注入</a></li>
+        <li><a href="stage-7.html#l2">第二课 · 泛型仓储精读</a></li>
+        <li><a href="stage-7.html#l3">第三课 · casbin 与 MQTT</a></li>
+        <li><a href="stage-7.html#l4">第四课 · 毕业精读</a></li>
+      </ul>
+    </details></li>
+  </ol>
+</nav>
+<main>
+  <h1>阶段 3 · 方法、接口与错误处理</h1>
+  <p class="sub">目标：掌握 back 项目最核心的三大代码模式：struct 方法、接口、<code>if err != nil</code>。<span class="chip todo">未开始</span></p>
+
+  <h2 id="checklist">章节 checklist</h2>
+  <ul class="tasks">
+    <li class="todo">方法（补充，教程散见）：值接收者 vs 指针接收者</li>
+    <li class="todo">递归函数（ch21）</li>
+    <li class="todo">接口（ch23）：定义、隐式实现、空接口 interface{}</li>
+    <li class="todo">类型断言（ch29）：<code>v, ok := x.(T)</code></li>
+    <li class="todo">继承≈组合（ch30）：嵌入 struct / 嵌入 interface</li>
+    <li class="todo">泛型（ch24）：<code>[T any]</code>、约束</li>
+    <li class="todo">错误处理（ch25）：error 接口、自定义错误、errors.Is/As</li>
+    <li class="todo">正则表达式（ch28）</li>
+  </ul>
+
+  <h2>JS 对照重点</h2>
+  <div class="callout js">
+    <b>JS 对照</b>
+    <p><b>interface 隐式实现 = 编译期的鸭子类型</b>：JS 天生鸭子（能调就是有），Go 不写 implements、方法集匹配就算实现——但编译器帮你把关。</p>
+    <p><b><code>if err != nil</code> vs try/catch/throw</b>：Go 没有异常、错误是普通返回值，错误必须当场处理或显式上抛（<code>return err</code>），不会像 JS 那样漏写 catch 炸到全局。</p>
+    <p>组合复用 vs class extends：Go 刻意没有类继承，靠「嵌入」组合。</p>
+    <p>泛型 <code>[T any]</code> vs JS 动态类型：JS 靠运行时灵活，Go 靠编译期泛型保证类型安全。</p>
+  </div>
+
+  <h2>back 对照（back 最核心的一章）</h2>
+  <div class="callout back">
+    <b>back 真实代码</b>
+    <p><code>D:\project\back\smb\smb_server\internal\controller\controller.go</code>：Controller 接口——30+ 个 controller 都隐式实现它：</p>
+    <pre><code>type Controller interface {
+    RegisterRoutes(groups map[string]*gin.RouterGroup, engin *gin.Engine)
+}</code></pre>
+    <p><code>D:\project\back\gobase\modules\pgsql\repository.go</code>：泛型仓储——泛型的真实工程用途：</p>
+    <pre><code>type PostgreSqlRepo[T any] interface {
+    Insert(ctx context.Context, obj *T) error
+    FindById(ctx, obj *T) (*T, error)
+    FindByWhere(ctx, where string, args ...interface{}) ([]*T, error)
+}</code></pre>
+    <p><code>D:\project\back\net_scan\backend\internal\api\handlers.go</code>：<code>err != nil</code> + 统一 JSON 响应——每天要写的模式：</p>
+    <pre><code>result, err := repo.ListDevices(...)
+if err != nil {
+    c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+    return
+}
+c.JSON(http.StatusOK, result)</code></pre>
+  </div>
+
+  <h2>练习规划</h2>
+  <div class="callout ex">
+    <b>练习</b>
+    <p><code>code/06-method-interface/</code>（方法双接收者 + 接口实现 + 类型断言）· <code>code/07-error/</code>（自定义错误、错误链）· <code>code/08-generics/</code>（泛型 Map/Filter/Contains + regexp）—— 编号沿用 00~05 序列</p>
+  </div>
+
+  <h2 id="l1">第一课 · 方法与组合 <span class="chip todo">讲义就绪 · 未开课</span></h2>
+  <p class="sub">方法（教程散见）+ ch30「继承」＝组合。练习落在 code/06-method-interface/（与接口课共用）。</p>
+
+  <h3>1. 方法：挂在类型上的函数</h3>
+  <pre><code>type Device struct {
+    Name  string
+    Price float64
+}
+
+//              ↓ 接收者：这个方法属于谁
+func (d Device) String() string {
+    return fmt.Sprintf("%s($%.2f)", d.Name, d.Price)
+}
+
+d := Device{Name: "AP", Price: 99}
+fmt.Println(d.String())   // 甚至直接 fmt.Println(d) —— String 方法会被自动调用！</code></pre>
+
+  <h3>2. 值接收者 vs 指针接收者</h3>
+  <pre><code>func (d Device) Rename1(n string)  { d.Name = n }   // 值接收者：改副本，白改
+func (d *Device) Rename2(n string) { d.Name = n }  // 指针接收者：改原值，生效</code></pre>
+  <p>选择惯例（满足任一条用 *T）：① 方法要修改对象状态；② struct 很大（拷贝浪费）；③ 一个类型里只要有一个方法用了 *T，其余全部跟随保持一致。</p>
+  <div class="callout js">
+    <b>JS 对照</b>
+    <p><b>相同点</b>：<code>d.String()</code> 的调用写法和 JS 的 <code>d.toString()</code> 一样。</p>
+    <p><b>不同点</b>：JS 方法定义在 class/object 内部；Go 方法写在 struct 外面，靠接收者 <code>(d Device)</code> 声明归属——所以甚至能给任意类型（int 别名、string）挂方法。值/指针接收者的区分 JS 不存在（this 永远指向对象本身），Go 必须显式选择「改副本还是改原值」——阶段 2 值语义的延续。</p>
+  </div>
+
+  <h3>3. 嵌入的方法提升（ch30 组合收口）</h3>
+  <pre><code>type Base struct{ ID int }
+func (b Base) Describe() string { return fmt.Sprintf("id=%d", b.ID) }
+
+type Device struct {
+    Base                     // 嵌入
+    Name string
+}
+
+d := Device{Name: "AP"}
+fmt.Println(d.Describe())    // Base 的方法被"提升"，d 直接调用——像继承</code></pre>
+  <p>runoob ch30 叫「继承」，本质是组合：Device <b>拥有</b>一个 Base，编译器把 <code>d.Describe()</code> 糖译成 <code>d.Base.Describe()</code>。没有父类、没有 override、没有多态链——需要多态时用接口（下节课）。</p>
+
+  <h3>4. back 真实代码</h3>
+  <div class="callout back">
+    <b>back 真实代码 ×2</b>
+    <p>值接收者——entity（只读，返回表名）：</p>
+    <pre><code>func (Site) TableName() string { return "sites" }</code></pre>
+    <p>指针接收者——controller（惯例统一 *T）：</p>
+    <pre><code>func (sc *SiteController) UpdateSite(g *gin.Context) { ... }</code></pre>
+    <p>再如 <code>func (e *SecurityError) Error() string</code>（阶段 1 见过的安全错误类型）。</p>
+  </div>
+
+  <h3>5. 练习（方法部分）</h3>
+  <div class="callout ex">
+    <b>练习 · code/06-method-interface/</b>
+    <ol>
+      <li>给 Device 定义 String() 方法（值接收者），fmt.Println(d) 验证自动调用</li>
+      <li>Rename 双版本实验：值接收者改名后外部没变、指针接收者变了</li>
+      <li>嵌入提升：Base 带 Describe() 方法嵌入 Device，d.Describe() 直接调用</li>
+    </ol>
+  </div>
+
+  <h2 id="l2">第二课 · 接口与类型断言 <span class="chip todo">讲义就绪 · 未开课</span></h2>
+  <p class="sub">覆盖 ch23（接口）、ch29（类型断言）。练习并入 code/06-method-interface/。</p>
+
+  <h3>1. 接口 = 方法签名的集合，隐式实现</h3>
+  <pre><code>type Describer interface {
+    Describe() string
+}
+
+// Device 有 Describe() 方法 → 它自动实现 Describer（不用写 implements！）
+var x Describer = Device{...}
+fmt.Println(x.Describe())</code></pre>
+  <p><b>隐式实现</b>是 Go 接口的全部魔法：类型只要有接口要求的全部方法就算实现——定义方和实现方互相不需要知道对方存在。</p>
+
+  <h3>2. 空接口 any 与类型断言</h3>
+  <pre><code>func show(v any) {                // any = interface{} 别名：什么都能装
+    if s, ok := v.(string); ok {   // 类型断言：v 是 string 吗？
+        fmt.Println("字符串:", s)
+    }
+}
+
+switch x := v.(type) {            // 类型 switch：多类型分支
+case string:
+case int:
+}</code></pre>
+
+  <h3>3. JS 对照</h3>
+  <div class="callout js">
+    <b>JS 对照</b>
+    <p><b>interface 隐式实现 = 编译期的鸭子类型</b>。JS 天生鸭子（能调 .Describe() 就算能描述），运行时才发现没有就 TypeError；Go 同样不看声明只看方法，但<b>编译期</b>就检查方法集齐不齐——鸭子类型的灵活性 + 静态类型的安全性。</p>
+    <p><b>易踩坑 ×2</b>：① 接口变量装着 nil 指针时 <code>iface != nil</code> 可能为 true（经典面试题，先知道有这个坑）；② 接口越小越好——Go 惯例一两个方法（io.Reader 只有一个）。</p>
+  </div>
+
+  <h3>4. back 真实代码</h3>
+  <div class="callout back">
+    <b>back 真实代码</b>
+    <p>Controller 接口与 30+ 隐式实现（smb 路由注册的基石）：</p>
+    <pre><code>type Controller interface {
+    RegisterRoutes(groups map[string]*gin.RouterGroup, engin *gin.Engine)
+}
+// SiteController、OrgController... 都有 RegisterRoutes → 全部自动实现
+// 注册处只需循环：for _, c := range controllers { c.RegisterRoutes(groups, eng) }</code></pre>
+    <p>error 就是个接口（下节课正题）：<code>type error interface { Error() string }</code>——自定义类型挂个 Error() 方法就变成 error。</p>
+  </div>
+
+  <h3>5. 练习（接口部分）</h3>
+  <div class="callout ex">
+    <b>练习 · code/06-method-interface/（续）</b>
+    <ol>
+      <li>定义 Describer 接口，让 Device 和另一个自定义类型（如 Org）都实现它</li>
+      <li>用 []Describer 装混合类型统一 range 调用 Describe()——体会多态</li>
+      <li>类型断言：从 any 里分别断言 string / int / Device，打印 ok</li>
+      <li>类型 switch：写 describe(v any) 对多类型分支处理</li>
+    </ol>
+  </div>
+
+  <h2 id="l3">第三课 · 错误处理 <span class="chip todo">讲义就绪 · 未开课</span></h2>
+  <p class="sub">覆盖 ch25。练习落在 code/07-error/。back 最高频代码模式的正体。</p>
+
+  <h3>1. error 只是个接口</h3>
+  <pre><code>type error interface { Error() string }
+
+err := errors.New("boom")
+err2 := fmt.Errorf("site %s not found", "s1")   // 带格式化
+
+q, err := strconv.Atoi("abc")
+if err != nil {          // ← 每天写 100 遍的姿势
+    return err           // 处理不了就往上传
+}</code></pre>
+
+  <h3>2. 错误包装与判定</h3>
+  <pre><code>err := fmt.Errorf("update site: %w", rawErr)   // %w 包装，保留错误链
+errors.Is(err, ErrNotFound)                    // 链上有没有 ErrNotFound？
+var myErr *MyError
+errors.As(err, &amp;myErr)                        // 链上能不能取出 *MyError？</code></pre>
+
+  <h3>3. JS 对照</h3>
+  <div class="callout js">
+    <b>JS 对照</b>
+    <p><b>try/catch/throw vs if err != nil</b>：JS 异常沿调用栈向上炸，漏写 catch 就全局崩；Go 错误是<b>普通返回值</b>，错误流向清晰可见、永远不会「逃逸」——代价是每层都要显式处理。</p>
+    <p><b>panic 不是 throw</b>：panic 留给「程序 bug / 不可能状态」（越界、nil 解引用），不做业务错误通道；业务错误 100% 走 error 返回值。</p>
+  </div>
+
+  <h3>4. back 真实代码 · 错误的三层工程化</h3>
+  <div class="callout back">
+    <b>back 真实代码</b>
+    <p>自定义错误类型实现 error 接口——errcode 包（阶段 1 见过的常量们的方法版）：</p>
+    <pre><code>type ErrCode int64
+func (e ErrCode) Error() string {          // 挂上 Error() → ErrCode 就是 error
+    return fmt.Sprintf("E%v: %v", int64(e), e.String())
+}</code></pre>
+    <p>controller 的三段式（每天写的模式）：</p>
+    <pre><code>if err := g.BindJSON(req); err != nil {
+    sc.logger.Errorf(...)
+    pkg.RetJSON(g, errcode.ParamBindError, nil)   // 错误 → 统一错误码响应
+    return
+}</code></pre>
+    <p>errcode/error.go 顶部注释还规定了各层错误怎么流转（repo 层 NotFound、service 层 wrap、controller 层转 ErrCode）——错误分层是真实项目的核心纪律。</p>
+  </div>
+
+  <h3>5. 练习</h3>
+  <div class="callout ex">
+    <b>练习 · code/07-error/</b>
+    <ol>
+      <li>自定义错误：type NotFoundError struct{...} 挂 Error() 方法</li>
+      <li>错误链：fmt.Errorf("load: %w", err) 包装后用 errors.Is / errors.As 判定</li>
+      <li>模拟分层：f1 返回包装错误 → f2 再包 → main 里 Is 判最底层</li>
+      <li>思考题：为什么 Go 不把 err 设计成 throw 异常？（提示：调用方是否被迫知道错误可能发生）</li>
+    </ol>
+  </div>
+
+  <h2 id="l4">第四课 · 泛型 + 递归 + 正则 <span class="chip todo">讲义就绪 · 未开课</span></h2>
+  <p class="sub">覆盖 ch24（泛型）、ch21（递归）、ch28（正则）。练习落在 code/08-generics/。</p>
+
+  <h3>1. 泛型：类型参数</h3>
+  <pre><code>func Map[T, U any](in []T, f func(T) U) []U {   // 类型参数 T、U
+    out := make([]U, 0, len(in))
+    for _, v := range in {
+        out = append(out, f(v))
+    }
+    return out
+}
+names := Map(devices, func(d Device) string { return d.Name })</code></pre>
+  <p>约束不只是 any：<code>[T comparable]</code>（可比较）、<code>[T int | float64]</code>（联合类型）。</p>
+  <div class="callout js">
+    <b>JS 对照</b>
+    <p>JS 的 map 天生泛型（动态类型白送），代价是无编译期保护；Go 1.18 前只能 interface{} + 断言（运行时才炸），泛型把「一份逻辑多种类型」拿到编译期。<b>易踩坑</b>：泛型不是日常工具——基础库（如 gobase）用它，业务代码 90% 场景具体类型就够。</p>
+  </div>
+
+  <h3>2. 递归（ch21）与正则（ch28）</h3>
+  <pre><code>func factorial(n int) int {        // 递归与 JS 无差异（无尾递归优化，深递归炸栈）
+    if n &lt;= 1 { return 1 }
+    return n * factorial(n-1)
+}
+
+re := regexp.MustCompile(`^\d{4}-\d{2}-\d{2}$`)   // Must* 失败直接 panic，用于启动期
+re.MatchString("2026-09-09")                      // true</code></pre>
+  <p>正则注意：Go 用 RE2 引擎——<b>不支持反向引用/环视</b>（\1、(?=...)），但保证线性时间。从 JS 迁移正则先查这条。</p>
+
+  <h3>3. back 真实代码</h3>
+  <div class="callout back">
+    <b>back 真实代码</b>
+    <p>泛型仓储——gobase 的 PostgreSqlRepo[T]，一份 Insert/Find 逻辑服务所有实体：</p>
+    <pre><code>type PostgreSqlRepo[T any] interface {
+    Insert(ctx context.Context, obj *T) error
+    FindById(ctx context.Context, obj *T) (*T, error)
+}
+// service 里：siteRepo         *pgsql.PostgreSqlDB[entity.Site]
+//            organizationRepo *pgsql.PostgreSqlDB[entity.Organization]  ← 同一套代码</code></pre>
+  </div>
+
+  <h3>4. 练习</h3>
+  <div class="callout ex">
+    <b>练习 · code/08-generics/</b>
+    <ol>
+      <li>实现泛型 Map[T,U] 和 Filter[T]，用 Device 切片跑通</li>
+      <li>comparable 约束：泛型 Contains[T comparable]([]T, T) bool</li>
+      <li>regexp 匹配日期 + 提取捕获组</li>
+    </ol>
+    <p>完成 = 阶段 3 结业，进入并发。</p>
+  </div>
+
+  <div class="pager"><a href="stage-2.html">← 阶段 2 · 核心数据结构</a><a href="stage-4.html">阶段 4 · 并发 →</a></div>
+  <footer class="colophon">进度源文档：<code>go/学习进度.md</code></footer>
+</main>
+</body>
+</html>

@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>阶段 5 · 工程化 — Go 从零学习</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<nav class="sidebar">
+  <a class="brand" href="index.html">Go 从零学习<span>JS 背景 → 满足后台开发要求</span></a>
+  <ol class="nav">
+    <li><a href="index.html">总览 · 学习计划</a></li>
+    <li><details>
+      <summary><a href="stage-0.html">阶段 0 · 环境搭建</a><em class="st done">完成</em></summary>
+      <ul class="sub">
+        <li><a href="stage-0.html#checklist">章节清单</a></li>
+        <li><a href="stage-0.html#trouble">排障实录</a></li>
+      </ul>
+    </details></li>
+    <li><details>
+      <summary><a href="stage-1.html">阶段 1 · 语法基础</a><em class="st done">完成</em></summary>
+      <ul class="sub">
+        <li><a href="stage-1.html#checklist">章节清单</a></li>
+        <li><a href="stage-1.html#l1">第一课 · 变量与类型</a></li>
+        <li><a href="stage-1.html#l2">第二课 · 常量与运算符</a></li>
+        <li><a href="stage-1.html#supp">补充 · 条件循环函数</a></li>
+      </ul>
+    </details></li>
+    <li><details>
+      <summary><a href="stage-2.html">阶段 2 · 核心数据结构</a><em class="st doing">进行中</em></summary>
+      <ul class="sub">
+        <li><a href="stage-2.html#checklist">章节清单</a></li>
+        <li><a href="stage-2.html#l1">第一课 · 数组与切片</a></li>
+        <li><a href="stage-2.html#l2">第二课 · map 与 range</a></li>
+        <li><a href="stage-2.html#l3">第三课 · 结构体</a></li>
+        <li><a href="stage-2.html#l4">第四课 · 指针与转换</a></li>
+      </ul>
+    </details></li>
+    <li><details>
+      <summary><a href="stage-3.html">阶段 3 · 方法接口与错误处理</a></summary>
+      <ul class="sub">
+        <li><a href="stage-3.html#checklist">章节清单</a></li>
+        <li><a href="stage-3.html#l1">第一课 · 方法与组合</a></li>
+        <li><a href="stage-3.html#l2">第二课 · 接口与断言</a></li>
+        <li><a href="stage-3.html#l3">第三课 · 错误处理</a></li>
+        <li><a href="stage-3.html#l4">第四课 · 泛型·递归·正则</a></li>
+      </ul>
+    </details></li>
+    <li><details>
+      <summary><a href="stage-4.html">阶段 4 · 并发</a></summary>
+      <ul class="sub">
+        <li><a href="stage-4.html#checklist">章节清单</a></li>
+        <li><a href="stage-4.html#l1">第一课 · goroutine 与 channel</a></li>
+        <li><a href="stage-4.html#l2">第二课 · sync 与 select</a></li>
+      </ul>
+    </details></li>
+    <li><details open>
+      <summary><a class="active" href="stage-5.html">阶段 5 · 工程化</a></summary>
+      <ul class="sub">
+        <li><a href="stage-5.html#checklist">章节清单</a></li>
+        <li><a href="stage-5.html#l1">第一课 · 包·模块·文件</a></li>
+        <li><a href="stage-5.html#l2">第二课 · 单元测试</a></li>
+      </ul>
+    </details></li>
+    <li><details>
+      <summary><a href="stage-6.html">阶段 6 · Web 后台实战</a></summary>
+      <ul class="sub">
+        <li><a href="stage-6.html#checklist">章节清单</a></li>
+        <li><a href="stage-6.html#l1">第一课 · net/http 裸写</a></li>
+        <li><a href="stage-6.html#l2">第二课 · gin 框架</a></li>
+        <li><a href="stage-6.html#l3">第三课 · gorm ORM</a></li>
+        <li><a href="stage-6.html#l4">第四课 · 分层与毕业作品</a></li>
+      </ul>
+    </details></li>
+    <li><details>
+      <summary><a href="stage-7.html">阶段 7 · 精读 smb</a></summary>
+      <ul class="sub">
+        <li><a href="stage-7.html#checklist">章节清单</a></li>
+        <li><a href="stage-7.html#l1">第一课 · fx 依赖注入</a></li>
+        <li><a href="stage-7.html#l2">第二课 · 泛型仓储精读</a></li>
+        <li><a href="stage-7.html#l3">第三课 · casbin 与 MQTT</a></li>
+        <li><a href="stage-7.html#l4">第四课 · 毕业精读</a></li>
+      </ul>
+    </details></li>
+  </ol>
+</nav>
+<main>
+  <h1>阶段 5 · 工程化</h1>
+  <p class="sub">目标：会管依赖、会写测试、看得懂 back 的工程组织。<span class="chip todo">未开始</span></p>
+
+  <h2 id="checklist">章节 checklist</h2>
+  <ul class="tasks">
+    <li class="todo">文件处理（ch27）：读写文件、os/ioutil</li>
+    <li class="todo">Go Modules 深入（ch33）：加依赖 <code>go get</code>、版本、go.sum</li>
+    <li class="todo">包与可见性（补充）：大写导出小写私有、包组织</li>
+    <li class="todo">单元测试（补充）：testing 包、表驱动测试、<code>go test</code></li>
+    <li class="todo">runoob 测验（ch32）：自测查漏</li>
+  </ul>
+
+  <h2>JS 对照重点</h2>
+  <div class="callout js">
+    <b>JS 对照</b>
+    <p>ES modules vs Go packages：import 路径 = 仓库路径；<b>大写开头 = export</b>（≈ JS 的 export 关键字被命名规范取代）。</p>
+    <p><code>go get</code> ≈ <code>npm install</code>；<code>go.mod</code>+<code>go.sum</code> ≈ <code>package.json</code>+lock。</p>
+    <p><code>go test</code> vs vitest/jest：无断言库依赖（<code>if got != want { t.Errorf(...) }</code>）、表驱动测试是官方推荐范式。</p>
+    <p>gofmt/go vet ≈ prettier/eslint，但内置零配置。</p>
+  </div>
+
+  <h2>back 对照</h2>
+  <div class="callout back">
+    <b>back 真实代码</b>
+    <p><code>D:\project\back\net_scan\backend\internal\api\</code> 下的 <code>*_test.go</code>：back 里测试密度最高的项目，直接照抄范式。</p>
+  </div>
+
+  <h2>练习规划</h2>
+  <div class="callout ex">
+    <b>练习</b>
+    <p><code>code/11-packages/</code>（多包组织、导出实验、go get、文件读写）· <code>code/12-testing/</code>（表驱动测试、覆盖率）</p>
+  </div>
+
+  <h2 id="l1">第一课 · 包、模块与文件 <span class="chip todo">讲义就绪 · 未开课</span></h2>
+  <p class="sub">覆盖 ch31/33（包/Modules）+ ch27（文件处理）。练习落在 code/11-packages/。</p>
+
+  <h3>1. 大写导出，小写私有</h3>
+  <pre><code>package utils
+
+func Hash(s string) string { ... }   // 大写开头 → 其他包可用（≈ export）
+func hash(s string) string { ... }   // 小写开头 → 仅本包可见</code></pre>
+  <p>常量、类型、结构体字段、方法全部同规则。没有 export 关键字——命名即可见性。</p>
+
+  <h3>2. import 路径与 go mod</h3>
+  <pre><code>import (
+    "fmt"                       // 标准库
+    "gostudy/pkg/utils"         // 本模块内：模块名 + 相对路径
+    "github.com/gin-gonic/gin"  // 第三方：仓库路径
+)</code></pre>
+  <pre><code>go get github.com/x/y@v1.2.3   // 加依赖 ≈ npm install pkg@版本
+go mod tidy                    // 按实际 import 清理/补齐依赖表</code></pre>
+  <p><b>internal/ 魔法目录</b>：路径里带 internal 的包只有其父目录树内能 import，外部强行 import 直接编译报错——编译器强制的私有边界。back 的 smb_server/internal 就靠它锁住 controller/service 不被外部引用。</p>
+
+  <h3>3. 文件读写三件套</h3>
+  <pre><code>data, err := os.ReadFile("config.json")      // 一口读
+err = os.WriteFile("out.txt", data, 0644)    // 一口写
+
+f, _ := os.Open("big.log")                   // 大文件：逐行
+scanner := bufio.NewScanner(f)
+for scanner.Scan() {
+    line := scanner.Text()
+}</code></pre>
+
+  <h3>4. JS 对照</h3>
+  <div class="callout js">
+    <b>JS 对照</b>
+    <p>大写导出 vs export 关键字；go get ≈ npm install；go.mod+go.sum ≈ package.json+lock（go.sum 是哈希校验防篡改）；internal ≈ 约定式私有目录——但 Go 是<b>编译器强制</b>。文件 IO 与 node:fs 的 readFile/writeFile 几乎一一对应，区别是错误走返回值不是异常。</p>
+  </div>
+
+  <h3>5. 练习</h3>
+  <div class="callout ex">
+    <b>练习 · code/11-packages/</b>
+    <ol>
+      <li>建子目录 pkg/mathx/（package mathx），导出 Add/Double（大写）与内部 helper（小写），main import 调用，试调小写函数看编译报错</li>
+      <li>go get 一个真实第三方包跑一下，看 go.mod 变化</li>
+      <li>写 devices.json（[]Device），ReadFile + json.Unmarshal 解析打印</li>
+    </ol>
+  </div>
+
+  <h2 id="l2">第二课 · 单元测试 <span class="chip todo">讲义就绪 · 未开课</span></h2>
+  <p class="sub">教程外补充（对照 back）。练习落在 code/12-testing/。</p>
+
+  <h3>1. 测试文件与函数</h3>
+  <pre><code>// db_test.go —— 与被测文件同目录，_test.go 后缀
+func TestDeviceDiscount(t *testing.T) {     // Test 前缀 + *testing.T 参数
+    d := Device{Name: "AP", Price: 100}
+    got := d.Discount(0.8)
+    if got != 80 {
+        t.Errorf("Discount(0.8) = %v, want 80", got)   // 报错不中断
+    }
+}</code></pre>
+  <pre><code>go test ./...           # 跑全部测试
+go test -run TestDevice # 只跑一个
+go test -v              # 显示每个用例</code></pre>
+
+  <h3>2. 表驱动测试（官方范式）</h3>
+  <pre><code>func TestDiscount(t *testing.T) {
+    tests := []struct {
+        name  string
+        price float64
+        ratio float64
+        want  float64
+    }{
+        {"正常8折", 100, 0.8, 80},
+        {"零价格", 0, 0.8, 0},
+        {"免费", 100, 0, 0},
+    }
+    for _, tt := range tests {
+        t.Run(tt.name, func(t *testing.T) {
+            d := Device{Price: tt.price}
+            if got := d.Discount(tt.ratio); got != tt.want {
+                t.Errorf("%s: got %v want %v", tt.name, got, tt.want)
+            }
+        })
+    }
+}</code></pre>
+
+  <h3>3. JS 对照</h3>
+  <div class="callout js">
+    <b>JS 对照</b>
+    <p>vitest 的 expect(got).toBe(want) 好写，但那是框架能力；Go testing 包<b>零依赖、零断言库</b>——if + t.Errorf 就是全部。表驱动 ≈ test.each([...])：用例数据与断言逻辑分离，加用例只加一行。t.Run ≈ describe/it 层级。</p>
+  </div>
+
+  <h3>4. back 真实代码</h3>
+  <div class="callout back">
+    <b>back 真实代码</b>
+    <p>net_scan 是 back 测试密度最高的项目——handlers_test.go 覆盖几乎每个 handler，还有 benchmark。挑一个读：表驱动 + httptest 模拟请求 + mock repo 注入，是 Go Web 测试的标准三件套。smb 的 service 也有 mocks/ 目录（gomock 生成）。</p>
+  </div>
+
+  <h3>5. 练习</h3>
+  <div class="callout ex">
+    <b>练习 · code/12-testing/</b>
+    <ol>
+      <li>给阶段 3 的 Device.Discount 写表驱动测试（≥4 用例含边界）</li>
+      <li>故意写错一个 want，看 go test 失败输出长什么样</li>
+      <li>go test -cover 看覆盖率</li>
+    </ol>
+    <p>完成 = 阶段 5 结业，进入实战。</p>
+  </div>
+
+  <div class="pager"><a href="stage-4.html">← 阶段 4 · 并发</a><a href="stage-6.html">阶段 6 · Web 后台实战 →</a></div>
+  <footer class="colophon">进度源文档：<code>go/学习进度.md</code></footer>
+</main>
+</body>
+</html>
