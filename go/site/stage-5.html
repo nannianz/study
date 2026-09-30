@@ -28,7 +28,7 @@
       </ul>
     </details></li>
     <li><details>
-      <summary><a href="stage-2.html">阶段 2 · 核心数据结构</a><em class="st doing">进行中</em></summary>
+      <summary><a href="stage-2.html">阶段 2 · 核心数据结构</a><em class="st done">完成</em></summary>
       <ul class="sub">
         <li><a href="stage-2.html#checklist">章节清单</a></li>
         <li><a href="stage-2.html#l1">第一课 · 数组与切片</a></li>
@@ -38,7 +38,7 @@
       </ul>
     </details></li>
     <li><details>
-      <summary><a href="stage-3.html">阶段 3 · 方法接口与错误处理</a></summary>
+      <summary><a href="stage-3.html">阶段 3 · 方法接口与错误处理</a><em class="st doing">进行中</em></summary>
       <ul class="sub">
         <li><a href="stage-3.html#checklist">章节清单</a></li>
         <li><a href="stage-3.html#l1">第一课 · 方法与组合</a></li>
@@ -123,27 +123,55 @@
   <p class="sub">覆盖 ch31/33（包/Modules）+ ch27（文件处理）。练习落在 code/11-packages/。</p>
 
   <h3>1. 大写导出，小写私有</h3>
-  <pre><code>package utils
+  <pre><code>// pkg/mathx/mathx.go —— 注意：包名 = 目录名 = 小写（Go 包名永远小写）
+package mathx
 
-func Hash(s string) string { ... }   // 大写开头 → 其他包可用（≈ export）
-func hash(s string) string { ... }   // 小写开头 → 仅本包可见</code></pre>
-  <p>常量、类型、结构体字段、方法全部同规则。没有 export 关键字——命名即可见性。</p>
+var factor = 2          // 小写：仅本包可见（包括下面的内部函数）
+
+func Double(n int) int {   // 大写开头 → 其他包可用（≈ export）
+    return n * factor
+}
+
+func doubleTwice(n int) int {   // 小写开头 → 仅本包可见
+    return double(double(n))
+}
+func double(n int) int { return n * factor }</code></pre>
+  <pre><code>// main.go —— 另一个包（package main）
+package main
+
+import (
+    "fmt"
+    "gostudy/pkg/mathx"       // import 路径 = 模块名(go.mod 里的) + 目录路径
+)
+
+func main() {
+    fmt.Println(mathx.Double(21))     // ✅ 42
+    // fmt.Println(mathx.double(21))  // ❌ undefined: mathx.double（小写不可见）
+    // fmt.Println(mathx.factor)      // ❌ undefined: mathx.factor
+}</code></pre>
+  <p>常量、类型、结构体字段、方法全部同规则（阶段 2 讲过的 json.Marshal 只认大写字段就是同一条规则）。没有 export 关键字——<b>命名即可见性</b>。调用侧永远带包名前缀 <code>mathx.Double</code>（不能省，Go 没有 JS 那种解构 import）。</p>
 
   <h3>2. import 路径与 go mod</h3>
   <pre><code>import (
     "fmt"                       // 标准库
-    "gostudy/pkg/utils"         // 本模块内：模块名 + 相对路径
-    "github.com/gin-gonic/gin"  // 第三方：仓库路径
+    "gostudy/pkg/mathx"         // 本模块内：模块名 + 相对路径
+    "github.com/gin-gonic/gin"  // 第三方：仓库路径（gin 作为包名使用）
 )</code></pre>
   <pre><code>go get github.com/x/y@v1.2.3   // 加依赖 ≈ npm install pkg@版本
-go mod tidy                    // 按实际 import 清理/补齐依赖表</code></pre>
+go mod tidy                    // 按实际 import 清理/补齐依赖表（≈ npm install 的自动版）</code></pre>
   <p><b>internal/ 魔法目录</b>：路径里带 internal 的包只有其父目录树内能 import，外部强行 import 直接编译报错——编译器强制的私有边界。back 的 smb_server/internal 就靠它锁住 controller/service 不被外部引用。</p>
+  <p><b>包 = 目录，不是文件</b>（阶段 2 踩过的坑的正式表述）：同目录所有文件的 package 声明必须一致，包内函数互相调用不需要 import——net_scan 的 internal/api 目录 24 个 .go 文件全是 package api，handlers.go 直接调 operation_audit.go 里的函数。</p>
 
   <h3>3. 文件读写三件套</h3>
   <pre><code>data, err := os.ReadFile("config.json")      // 一口读
+if err != nil {                              // 文件不存在/没权限——阶段 3 错误处理实战
+    log.Fatal(err)
+}
 err = os.WriteFile("out.txt", data, 0644)    // 一口写
 
-f, _ := os.Open("big.log")                   // 大文件：逐行
+f, err := os.Open("big.log")                 // 大文件：逐行（不整载内存）
+if err != nil { log.Fatal(err) }
+defer f.Close()                              // 惯例：打开就 defer 关
 scanner := bufio.NewScanner(f)
 for scanner.Scan() {
     line := scanner.Text()
@@ -155,13 +183,23 @@ for scanner.Scan() {
     <p>大写导出 vs export 关键字；go get ≈ npm install；go.mod+go.sum ≈ package.json+lock（go.sum 是哈希校验防篡改）；internal ≈ 约定式私有目录——但 Go 是<b>编译器强制</b>。文件 IO 与 node:fs 的 readFile/writeFile 几乎一一对应，区别是错误走返回值不是异常。</p>
   </div>
 
-  <h3>5. 练习</h3>
+  <h3>5. back 真实代码</h3>
+  <div class="callout back">
+    <b>back 真实代码 ×2</b>
+    <p>依赖管理实战：smb/go.mod 的 require 列表就是「用 Go 写网管后台」的标准答案（gin/gorm/casbin/fx/redis/jwt/viper/cron，阶段 0 读过的那份）——每个依赖的定位阶段 6~7 都会逐个见到。</p>
+    <p>代码生成器（Go 工程的另一面）：smb 的测试 mock 不是手写的，是 <code>go generate</code> 生成的（service/mocks/generate.go）：</p>
+    <pre><code>//go:generate go run go.uber.org/mock/mockgen@v0.6.0 -typed -destination=versionrepo_mock.go -package=mocks smb/smb_server/internal/service VersionRepo</code></pre>
+    <p>这行注释是命令：跑 mockgen 工具自动生成 VersionRepo 接口的测试替身文件（≈ vitest 的 vi.fn()，但产物是完整 .go 文件、版本钉死、团队生成结果一致）。「编辑器智能靠 gopls、重复代码靠生成器」——Go 工具链分工。</p>
+  </div>
+
+  <h3>6. 练习</h3>
   <div class="callout ex">
     <b>练习 · code/11-packages/</b>
     <ol>
       <li>建子目录 pkg/mathx/（package mathx），导出 Add/Double（大写）与内部 helper（小写），main import 调用，试调小写函数看编译报错</li>
-      <li>go get 一个真实第三方包跑一下，看 go.mod 变化</li>
-      <li>写 devices.json（[]Device），ReadFile + json.Unmarshal 解析打印</li>
+      <li>go get 一个真实第三方包跑一下，看 go.mod 变化；再 go mod tidy 看清理</li>
+      <li>写 devices.json（[]Device），ReadFile + json.Unmarshal 解析打印（文件不存在时错误处理）</li>
+      <li>选做：mkdir internal/secret 放一个包，从 gostudy 根外（另起 module）import 它，看编译器怎么拒绝</li>
     </ol>
   </div>
 
@@ -169,21 +207,32 @@ for scanner.Scan() {
   <p class="sub">教程外补充（对照 back）。练习落在 code/12-testing/。</p>
 
   <h3>1. 测试文件与函数</h3>
-  <pre><code>// db_test.go —— 与被测文件同目录，_test.go 后缀
-func TestDeviceDiscount(t *testing.T) {     // Test 前缀 + *testing.T 参数
+  <pre><code>// device_test.go —— 与被测文件同目录同包，_test.go 后缀（go run 自动忽略它，只有 go test 编译）
+func TestDeviceDiscount(t *testing.T) {     // Test 前缀 + 唯一参数 *testing.T
     d := Device{Name: "AP", Price: 100}
     got := d.Discount(0.8)
     if got != 80 {
-        t.Errorf("Discount(0.8) = %v, want 80", got)   // 报错不中断
+        t.Errorf("Discount(0.8) = %v, want 80", got)   // 报错但继续跑后续用例
     }
 }</code></pre>
-  <pre><code>go test ./...           # 跑全部测试
-go test -run TestDevice # 只跑一个
-go test -v              # 显示每个用例</code></pre>
+  <pre><code>go test ./...            # 跑全部测试（≈ vitest run）
+go test -run TestDevice  # 只跑一个（≈ vitest -t）
+go test -v               # 显示每个用例（≈ vitest --reporter=verbose）</code></pre>
+  <pre><code># go test -v 的输出长这样（先见个面）：
+=== RUN   TestDeviceDiscount
+--- PASS: TestDeviceDiscount (0.00s)
+PASS
+ok      gostudy/code/12-testing    0.012s
+
+# 故意写错 want 时的失败输出：
+--- FAIL: TestDeviceDiscount (0.00s)
+    device_test.go:9: Discount(0.8) = 79.9, want 80
+FAIL</code></pre>
+  <p><code>t.Errorf</code> 记录失败继续跑，<code>t.Fatalf</code> 立即终止本用例——后续断言依赖前面的结果时用 Fatalf（比如响应码都错了，再解析 body 没意义）。</p>
 
   <h3>2. 表驱动测试（官方范式）</h3>
   <pre><code>func TestDiscount(t *testing.T) {
-    tests := []struct {
+    tests := []struct {           // 匿名 struct 切片当用例表（阶段 2 匿名嵌入的近亲：匿名 struct）
         name  string
         price float64
         ratio float64
@@ -192,27 +241,44 @@ go test -v              # 显示每个用例</code></pre>
         {"正常8折", 100, 0.8, 80},
         {"零价格", 0, 0.8, 0},
         {"免费", 100, 0, 0},
+        {"全价", 100, 1, 100},
+        {"超界负数", 100, -0.5, 0},      // 边界与异常一并覆盖
     }
     for _, tt := range tests {
-        t.Run(tt.name, func(t *testing.T) {
+        t.Run(tt.name, func(t *testing.T) {     // 子测试：每个用例独立报告
             d := Device{Price: tt.price}
             if got := d.Discount(tt.ratio); got != tt.want {
-                t.Errorf("%s: got %v want %v", tt.name, got, tt.want)
+                t.Errorf("%s: Discount(%v) = %v, want %v", tt.name, tt.ratio, got, tt.want)
             }
         })
     }
 }</code></pre>
+  <p>用例数据与断言逻辑分离：加用例只加一行、失败时按 name 精确定位、<code>-run TestDiscount/零价格</code> 可单跑某个子用例。这是 Go 官方推荐的标准范式，back 全线在用。</p>
 
   <h3>3. JS 对照</h3>
   <div class="callout js">
     <b>JS 对照</b>
-    <p>vitest 的 expect(got).toBe(want) 好写，但那是框架能力；Go testing 包<b>零依赖、零断言库</b>——if + t.Errorf 就是全部。表驱动 ≈ test.each([...])：用例数据与断言逻辑分离，加用例只加一行。t.Run ≈ describe/it 层级。</p>
+    <p>vitest 的 expect(got).toBe(want) 好写，但那是框架能力；Go testing 包<b>零依赖、零断言库</b>——if + t.Errorf 就是全部（标准库连 assert 都不提供，社区有 testify 但 net_scan 只在个别处用）。表驱动 ≈ test.each([...])；t.Run ≈ describe/it 层级。<b>测试文件与被测代码同目录同包</b>（不是 __tests__/ 分离）——测试可以访问包内小写私有函数，这是刻意的。</p>
   </div>
 
   <h3>4. back 真实代码</h3>
   <div class="callout back">
-    <b>back 真实代码</b>
-    <p>net_scan 是 back 测试密度最高的项目——handlers_test.go 覆盖几乎每个 handler，还有 benchmark。挑一个读：表驱动 + httptest 模拟请求 + mock repo 注入，是 Go Web 测试的标准三件套。smb 的 service 也有 mocks/ 目录（gomock 生成）。</p>
+    <b>back 真实代码 ×2</b>
+    <p>net_scan 的 Web 层测试——httptest 模拟请求（不用起真服务器）：auth_handlers_test.go 原文风格：</p>
+    <pre><code>func TestAuthMeReturnsAnonymousWhenNotLoggedIn(t *testing.T) {
+    router := newAuthTestRouter(t)                    // 搭测试专用路由（注入测试 repo）
+
+    req := httptest.NewRequest(http.MethodGet, "/api/auth/me", nil)  // 造请求
+    resp := httptest.NewRecorder()                    // 造响应 recorder
+
+    router.ServeHTTP(resp, req)                       // 直接调 ServeHTTP——不发网络包
+
+    if resp.Code != http.StatusOK {
+        t.Fatalf("expected 200, got %d with body %s", resp.Code, resp.Body.String())
+    }
+    // 再 json.Unmarshal(resp.Body.Bytes(), &amp;body) 断言字段……
+}</code></pre>
+    <p>表驱动 + httptest 模拟请求 + mock repo 注入 = Go Web 测试标准三件套。smb 的 service 层测试用 gomock 生成的 mock（阶段 5 第一课看过的 go:generate）——接口定义好后 mock 全自动。</p>
   </div>
 
   <h3>5. 练习</h3>
@@ -220,8 +286,9 @@ go test -v              # 显示每个用例</code></pre>
     <b>练习 · code/12-testing/</b>
     <ol>
       <li>给阶段 3 的 Device.Discount 写表驱动测试（≥4 用例含边界）</li>
-      <li>故意写错一个 want，看 go test 失败输出长什么样</li>
-      <li>go test -cover 看覆盖率</li>
+      <li>故意写错一个 want，看 go test 失败输出长什么样；再把 Errorf 换 Fatalf 对比行为</li>
+      <li>go test -cover 看覆盖率；go test -run TestDiscount/零价格 单跑子用例</li>
+      <li>选做：写一个接收函数参数的测试辅助函数 verify(t, got, want)——体会 *testing.T 当参数传递（它是普通指针，阶段 2 知识）</li>
     </ol>
     <p>完成 = 阶段 5 结业，进入实战。</p>
   </div>

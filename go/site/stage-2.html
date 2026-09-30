@@ -28,7 +28,7 @@
       </ul>
     </details></li>
     <li><details open>
-      <summary><a class="active" href="stage-2.html">阶段 2 · 核心数据结构</a><em class="st doing">进行中</em></summary>
+      <summary><a class="active" href="stage-2.html">阶段 2 · 核心数据结构</a><em class="st done">完成</em></summary>
       <ul class="sub">
         <li><a href="stage-2.html#checklist">章节清单</a></li>
         <li><a href="stage-2.html#l1">第一课 · 数组与切片</a></li>
@@ -38,7 +38,7 @@
       </ul>
     </details></li>
     <li><details>
-      <summary><a href="stage-3.html">阶段 3 · 方法接口与错误处理</a></summary>
+      <summary><a href="stage-3.html">阶段 3 · 方法接口与错误处理</a><em class="st doing">进行中</em></summary>
       <ul class="sub">
         <li><a href="stage-3.html#checklist">章节清单</a></li>
         <li><a href="stage-3.html#l1">第一课 · 方法与组合</a></li>
@@ -87,7 +87,7 @@
 </nav>
 <main>
   <h1>阶段 2 · 核心数据结构</h1>
-  <p class="sub">目标：熟练使用切片、map、结构体，理解值语义与指针——这是读 back 代码的最大门槛。<span class="chip doing">进行中</span></p>
+  <p class="sub">目标：熟练使用切片、map、结构体，理解值语义与指针——这是读 back 代码的最大门槛。<span class="chip done">已完成 · 2026-09-11 结业</span></p>
 
   <h2 id="checklist">章节 checklist</h2>
   <ul class="tasks">
@@ -95,9 +95,9 @@
     <li class="done">切片（ch18）：len/cap、append、切片截取<span class="note">2026-09-07 验收：任务全覆盖，自发用 %p 打印底层数组地址观察搬家与共享断开（超纲）</span></li>
     <li class="done">范围 Range（ch19）：for range 遍历切片/map<span class="note">2026-09-09 验收，含 range string 字节下标跳步实验</span></li>
     <li class="done">Map（ch20）：增删改查、<code>v, ok := m[k]</code> 判存在<span class="note">2026-09-09 验收：ok 正反用例齐全、nil map panic 实测</span></li>
-    <li class="todo">指针（ch16）：&amp; 取地址、* 解引用、指针传递</li>
+    <li class="done">指针（ch16）：&amp; 取地址、* 解引用、指针传递<span class="note">2026-09-11 验收：swap 双版本 + struct 值/指针对比 live code</span></li>
     <li class="done">结构体（ch17）：定义、初始化、tag、嵌套<span class="note">2026-09-09 复验通过：三式初始化 + 提升访问补齐；提醒：类型定义放包级（两次点评）</span></li>
-    <li class="todo">类型转换（ch22）：显式转换、strconv</li>
+    <li class="done">类型转换（ch22）：显式转换、strconv<span class="note">2026-09-11 验收；额外发现：常量转换必须精确（int(3.14) 编译拒）、变量转换才截断</span></li>
   </ul>
 
   <h2>JS 对照重点</h2>
@@ -338,7 +338,7 @@ func (Site) TableName() string { return "sites" }</code></pre>
     </ol>
   </div>
 
-  <h2 id="l4">第四课 · 指针与类型转换 <span class="chip todo">讲义就绪 · 未开课</span></h2>
+  <h2 id="l4">第四课 · 指针与类型转换 <span class="chip done">已完成 · 2026-09-11 验收</span></h2>
   <p class="sub">覆盖 ch16（指针）、ch22（类型转换）。练习落在 code/05-pointer/。前三课埋的 &amp;s[0]、&amp;Site{}、&amp;service.UpdateSiteRequest{} 在这里全部收口。</p>
 
   <h3>1. 指针 = 存「变量地址」的变量</h3>
@@ -388,7 +388,7 @@ g.BindJSON(req)                        // gin 往指针指向的对象里灌数�
 
   <h3>5. 练习（code/05-pointer/，5 个任务）</h3>
   <div class="callout ex">
-    <b>练习 · code/05-pointer/main.go</b>
+    <b>练习 · code/05-pointer/ ✅（2026-09-11 验收 4.5/5，评价在 main.go 末尾）</b>
     <ol>
       <li>解引用实验：a := 42; p := &amp;a; *p = 100，打印 a——100</li>
       <li>swap 双版本：swapByValue(a, b int)（改不了外部）和 swapByPtr(a, b *int)（改得了），打印对比</li>

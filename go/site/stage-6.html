@@ -28,7 +28,7 @@
       </ul>
     </details></li>
     <li><details>
-      <summary><a href="stage-2.html">阶段 2 · 核心数据结构</a><em class="st doing">进行中</em></summary>
+      <summary><a href="stage-2.html">阶段 2 · 核心数据结构</a><em class="st done">完成</em></summary>
       <ul class="sub">
         <li><a href="stage-2.html#checklist">章节清单</a></li>
         <li><a href="stage-2.html#l1">第一课 · 数组与切片</a></li>
@@ -38,7 +38,7 @@
       </ul>
     </details></li>
     <li><details>
-      <summary><a href="stage-3.html">阶段 3 · 方法接口与错误处理</a></summary>
+      <summary><a href="stage-3.html">阶段 3 · 方法接口与错误处理</a><em class="st doing">进行中</em></summary>
       <ul class="sub">
         <li><a href="stage-3.html#checklist">章节清单</a></li>
         <li><a href="stage-3.html#l1">第一课 · 方法与组合</a></li>
@@ -116,79 +116,136 @@
   <h2 id="l1">第一课 · net/http 裸写 <span class="chip todo">讲义就绪 · 未开课</span></h2>
   <p class="sub">实战热身：不用框架写一个 HTTP 服务，知道 gin 帮你省了什么。练习并入 code/13-gin/。</p>
 
-  <pre><code>func main() {
+  <pre><code>package main
+
+import (
+    "encoding/json"
+    "net/http"
+)
+
+type Device struct {
+    Name  string  `json:"name"`
+    Price float64 `json:"price"`
+}
+
+var devices = []Device{{"AP1", 99}, {"AP2", 199}}   // 内存版「数据库」
+
+func main() {
     http.HandleFunc("/api/devices", func(w http.ResponseWriter, r *http.Request) {
-        switch r.Method {
+        switch r.Method {                            // 手动分发方法
         case http.MethodGet:
-            w.Header().Set("Content-Type", "application/json")
-            json.NewEncoder(w).Encode([]string{"d1", "d2"})
+            w.Header().Set("Content-Type", "application/json")   // 手动设头
+            json.NewEncoder(w).Encode(devices)       // 手动序列化写响应
         case http.MethodPost:
             var d Device
-            json.NewDecoder(r.Body).Decode(&amp;d)
+            if err := json.NewDecoder(r.Body).Decode(&amp;d); err != nil {   // 手动解 body
+                http.Error(w, "bad json", http.StatusBadRequest)
+                return
+            }
+            devices = append(devices, d)             // 阶段 2 append 知识实战
             w.WriteHeader(http.StatusCreated)
+        default:
+            http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
         }
     })
-    http.ListenAndServe(":8080", nil)
+    http.ListenAndServe(":8080", nil)   // :8080 监听；nil = 用默认路由表
 }</code></pre>
+  <pre><code># 起服务后自己开另一个终端验证（环境命令自己敲）：
+curl http://localhost:8080/api/devices
+curl -X POST http://localhost:8080/api/devices -d "{\"name\":\"AP3\",\"price\":50}"
+curl http://localhost:8080/api/devices     # 第三条出现了</code></pre>
   <div class="callout js">
     <b>JS 对照</b>
     <p>≈ node 原生 http.createServer + 手动路由——没框架时 Node 也这么苦。痛点同步显现：路由参数要手切 URL、中间件要手串、没有统一 JSON 响应。这些痛点就是 gin 存在的意义，下节课逐一对照。</p>
   </div>
   <div class="callout back">
-    <b>back 对照</b>
-    <p>标准库的 Handler 接口 <code>ServeHTTP(w, r)</code> 是一切 Go Web 框架的地基——gin 的 engine 实现的就是它。</p>
+    <b>back 对照 · 一切框架的地基</b>
+    <p>标准库的 <code>http.Handler</code> 接口只有 <code>ServeHTTP(w, r)</code> 一个方法——gin 的整个 engine 实现的就是它（阶段 3 接口的终极实战：gin 不是取代 net/http，是实现它的 Handler）。<code>http.HandlerFunc</code> 更妙：<code>func(w, r)</code> 类型的函数自动实现 Handler 接口——函数是一等公民 + 隐式接口的组合拳，你传的所有匿名 handler 都靠它。</p>
   </div>
 
   <h2 id="l2">第二课 · gin 框架 <span class="chip todo">讲义就绪 · 未开课</span></h2>
   <p class="sub">练习落在 code/13-gin/。net_scan/smb 的骨架。</p>
 
-  <h3>1. 路由与参数</h3>
-  <pre><code>r := gin.Default()                          // 自带 Logger + Recovery 中间件
+  <h3>1. 路由与参数（完整可跑版）</h3>
+  <pre><code>package main
 
-api := r.Group("/api/v1")                   // 路由组 ≈ Router 挂载
-{
-    api.GET("/sites/:site_id", getSite)     // 路径参数
-    api.POST("/sites", createSite)
-    api.PATCH("/sites/:site_id", updateSite)
+import "github.com/gin-gonic/gin"
+
+func main() {
+    r := gin.Default()                      // 自带 Logger + Recovery 中间件
+
+    api := r.Group("/api/v1")               // 路由组 ≈ express.Router() 挂载
+    {
+        api.GET("/devices", listDevices)            // 查询参数 ?q=
+        api.GET("/devices/:id", getDevice)          // 路径参数 :id
+        api.POST("/devices", createDevice)          // body JSON
+    }
+    r.Run(":8080")                          // ≈ app.listen(8080)
 }
 
-func getSite(g *gin.Context) {              // handler：*gin.Context 是一切
-    id := g.Param("site_id")                // 路径参数
-    page := g.Query("page")                 // 查询参数 ?page=2
-    req := &amp;UpdateRequest{}
-    g.BindJSON(req)                          // body → struct（binding tag 校验）
-    g.JSON(200, gin.H{"id": id, "page": page})   // 响应 ≈ res.json()
+func listDevices(g *gin.Context) {
+    q := g.Query("q")                       // ?q=ap（缺省空串）
+    g.JSON(200, gin.H{"q": q, "items": []string{"AP1", "AP2"}})   // gin.H ≈ 直接 res.json({...})
+}
+
+func getDevice(g *gin.Context) {
+    id := g.Param("id")                     // /devices/ap-1 → id = "ap-1"
+    g.JSON(200, gin.H{"id": id})
+}
+
+func createDevice(g *gin.Context) {
+    var req struct {                        // 请求 DTO：匿名 struct 就地定义
+        Name  string `json:"name" binding:"required"`    // binding tag = 校验规则
+        Price int    `json:"price"`
+    }
+    if err := g.BindJSON(&amp;req); err != nil {           // body → struct；校验失败自动 400
+        return                              // BindJSON 失败时响应已写好，直接 return
+    }
+    g.JSON(201, gin.H{"created": req.Name})
 }</code></pre>
+  <pre><code>curl http://localhost:8080/api/devices?q=ap
+curl http://localhost:8080/api/devices/ap-1
+curl -X POST http://localhost:8080/api/devices -d '{"name":"AP3","price":50}'
+curl -X POST http://localhost:8080/api/devices -d '{"price":50}'    # 缺 name → 自动 400</code></pre>
 
   <h3>2. 中间件</h3>
-  <pre><code>r.Use(func(c *gin.Context) {
+  <pre><code>r.Use(func(c *gin.Context) {          // r.Use = 全局；group.Use = 组内
     start := time.Now()
-    c.Next()                                 // 放行给后续 handler
-    log.Println(time.Since(start))           // 回来记耗时
+    c.Next()                            // 放行给后续 handler（先序段到此为止）
+    log.Println(time.Since(start))      // 回来记耗时（后序段——响应已写完）
 })</code></pre>
 
   <h3>3. JS 对照</h3>
   <div class="callout js">
     <b>JS 对照（Express 老家）</b>
-    <p>RouterGroup ≈ express.Router()；g.Param("id") ≈ req.params.id；g.Query ≈ req.query；BindJSON ≈ body-parser + 校验（校验规则写在 struct tag：<code>binding:"required"</code>）；c.Next() 中间件链 ≈ next()（gin 是先序+后序两段，不是真洋葱）；gin.H ≈ 直接 res.json({...})。</p>
-    <p><b>易踩坑</b>：handler 忘 return 是经典 bug——c.JSON 只是写响应不中断函数，后面再写一个 c.JSON 就 double write（back 源码每个错误分支都紧跟 return 的原因）。</p>
+    <p>RouterGroup ≈ express.Router()；g.Param("id") ≈ req.params.id；g.Query ≈ req.query；BindJSON ≈ body-parser + 校验二合一（校验规则写在 struct tag：<code>binding:"required"</code>，不用 Joi 手写 schema）；c.Next() 中间件链 ≈ next()（gin 是先序+后序两段，不是真洋葱）；gin.H ≈ 直接 res.json({...})。</p>
+    <p><b>易踩坑</b>：handler 忘 return 是经典 bug——c.JSON 只是写响应不中断函数，后面再写一个 c.JSON 就 double write（back 源码每个错误分支都紧跟 return 的原因，阶段 3 错误处理三段式在 gin 里的形态）。</p>
   </div>
 
   <h3>4. back 真实代码</h3>
   <div class="callout back">
-    <b>back 真实代码</b>
-    <p>net_scan 的函数式 handler（结构最简）：</p>
-    <pre><code>func GetDevices(c *gin.Context) {
-    repo := storage.NewRepository()
-    filter := storage.DeviceFilter{Q: c.Query("q")}
-    result, err := repo.ListDevices(c.Request.Context(), filter, ...)
-    if err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-        return
-    }
-    c.JSON(http.StatusOK, result)
+    <b>back 真实代码 ×2</b>
+    <p>net_scan 入口（cmd/server/main.go）——三行骨架 + 中间件实战：</p>
+    <pre><code>r := gin.Default()
+r.Use(func(c *gin.Context) {                    // CORS 中间件（真实生产代码）
+    c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+    ...
+    c.Next()
+})
+api.RegisterRoutes(r)                           // 路由注册收敛到一个函数</code></pre>
+    <p>权限路由组（internal/api/handlers.go）——路由组 + 中间件组合出权限层级：</p>
+    <pre><code>authAware := authGroup(api)                    // 登录就能访问
+{
+    authAware.GET("/auth/me", GetAuthMe)
+    authAware.POST("/logout", requireAuthenticated(), Logout)   // 路由级中间件
+}
+scanRoutes := permissionGroup(api, func(perms authPermissions) bool {   // 按权限位建组
+    return perms.CanScan                        // 有扫描权限才放行
+})
+{
+    scanRoutes.POST("/scan", TriggerScan)
 }</code></pre>
-    <p>smb 的路由注册（组 → controller 循环）：<code>groups["/api/v1"]</code> 传给每个 controller 的 RegisterRoutes——接口 + 隐式实现 + map 在真实框架里的合体。</p>
+    <p>handler 本体是函数式的（结构最简，阶段 1 就见过）：<code>GetDevices(c *gin.Context)</code> 里 Bind/Query/JSON 三板斧 + 错误分支 return。smb 的路由注册则是组 → controller 循环（接口 + 隐式实现 + map 的合体，阶段 3 见过的 RegisterRoutes）。</p>
   </div>
 
   <h3>5. 练习</h3>
@@ -199,41 +256,69 @@ func getSite(g *gin.Context) {              // handler：*gin.Context 是一切
       <li>路径参数版 GET /api/devices/:id、查询参数 ?q= 过滤</li>
       <li>写一个耗时中间件 + 一个 token 校验失败中间件（401）</li>
       <li>binding:"required" 体验：POST 空 body 看自动 400</li>
+      <li>curl 全流程走通（GET 列表 → POST 新增 → GET 详情）</li>
     </ol>
   </div>
 
   <h2 id="l3">第三课 · gorm ORM <span class="chip todo">讲义就绪 · 未开课</span></h2>
   <p class="sub">练习落在 code/14-gorm/（sqlite 免装数据库）。</p>
 
-  <h3>1. 连接 + 建表 + CRUD 四式</h3>
+  <h3>1. 模型：struct + 双 tag（阶段 2 知识的正式兑现）</h3>
+  <pre><code>type Device struct {
+    ID    uint   `gorm:"primaryKey"`
+    Name  string `gorm:"type:varchar(64);uniqueIndex"`   // 唯一索引——插重复会报错
+    Price int    `gorm:"default:0"`
+    CreatedAt int64 `gorm:"autoCreateTime:milli"`        // smb Site 同款（阶段 2 读过的那个字段）
+}
+func (Device) TableName() string { return "devices" }    // smb entity 同款方法（阶段 3 值接收者）</code></pre>
+  <p>阶段 2 精读 smb entity/site.go 时认识的 gorm tag，这里是亲手用：<code>primaryKey / type / default / uniqueIndex / autoCreateTime:milli / column</code>——同一套标签体系，从那一刻起你就已经会读 smb 的实体定义了。</p>
+
+  <h3>2. 连接 + 建表 + CRUD 四式（完整版）</h3>
   <pre><code>db, err := gorm.Open(sqlite.Open("dev.db"), &amp;gorm.Config{})
-db.AutoMigrate(&amp;Device{})            // 按 struct + gorm tag 建表
+if err != nil {
+    log.Fatal(err)                          // 连库失败没有活路
+}
+db.AutoMigrate(&amp;Device{})                   // 按 struct + gorm tag 建表（≈ 迁移脚本自动生成）
 
-db.Create(&amp;Device{Name: "AP1", Price: 99})           // INSERT
-db.First(&amp;d, "name = ?", "AP1")                     // SELECT 单条（? 占位防注入）
-db.Model(&amp;d).Update("price", 79)                    // UPDATE
-db.Where("price &gt; ?", 50).Find(&amp;list)               // SELECT 列表
-db.Delete(&amp;d)                                       // DELETE</code></pre>
+// INSERT（返回值都在 *Device 上回填：ID 自增主键写回 d.ID）
+d := Device{Name: "AP1", Price: 99}
+if err := db.Create(&amp;d).Error; err != nil {  // .Error 取错误——gorm 的链式调用统一这个姿势
+    fmt.Println("插入失败:", err)              // 比如违反唯一索引
+}
 
-  <h3>2. JS 对照</h3>
+// SELECT 单条（? 占位防注入——字符串拼接 SQL 是安全红线）
+var found Device
+db.First(&amp;found, "name = ?", "AP1")          // 找不到 → ErrRecordNotFound（errors.Is 判它）
+
+// SELECT 列表 + 条件
+var list []Device
+db.Where("price &gt; ?", 50).Find(&amp;list)
+
+// UPDATE / DELETE
+db.Model(&amp;found).Update("price", 79)
+db.Delete(&amp;found)</code></pre>
+  <p>三个要点：① gorm 的链式调用结果都有 <code>.Error</code> 字段——阶段 3 的 if err != nil 在 ORM 层的形态；② <code>First</code> 找不到记录返回 <code>gorm.ErrRecordNotFound</code>，用 <code>errors.Is(err, gorm.ErrRecordNotFound)</code> 判定（错误链实战）；③ <code>db.Debug()</code> 打印真实 SQL（如 <code>db.Debug().Where(...).Find(...)</code>）——复杂查询看真身是排障标配。</p>
+
+  <h3>3. JS 对照</h3>
   <div class="callout js">
     <b>JS 对照</b>
-    <p>gorm ≈ Sequelize/TypeORM：模型定义（struct+tag ≈ Model+装饰器）、关联、迁移。坑也同款：复杂查询生成的 SQL 不直观，要开日志看真身（<code>db.Debug()</code> ≈ Sequelize logging）。<code>?</code> 占位符 ≈ 参数化查询，字符串拼接 SQL 在两边都是安全红线。</p>
+    <p>gorm ≈ Sequelize/TypeORM：模型定义（struct+tag ≈ Model+装饰器）、关联、迁移。坑也同款：复杂查询生成的 SQL 不直观，要开日志看真身（<code>db.Debug()</code> ≈ Sequelize logging）。<code>?</code> 占位符 ≈ 参数化查询，字符串拼接 SQL 在两边都是安全红线。差异：gorm 无 eager/lazy loading 之分，关联要显式 Preload；错误不抛异常走 .Error 字段。</p>
   </div>
 
-  <h3>3. back 对照</h3>
+  <h3>4. back 对照</h3>
   <div class="callout back">
     <b>back 真实代码</b>
-    <p>smb 不直接用 gorm 裸 API，而是套了 gobase 泛型仓储（Insert/FindByWhere...），底层还是 gorm——阶段 7 精读拆洋葱。net_scan 更直接：storage 包里就是 gorm 标准用法，先读它。</p>
+    <p>smb 不直接用 gorm 裸 API，而是套了 gobase 泛型仓储（Insert/FindByWhere...），底层还是 gorm——阶段 7 精读拆洋葱。net_scan 更直接：storage 包里就是 gorm 标准用法（repo_mysql.go 里 json.Marshal 切片存 TEXT 列那个文件——阶段 2 见过的模式），先读它。</p>
   </div>
 
-  <h3>4. 练习</h3>
+  <h3>5. 练习</h3>
   <div class="callout ex">
     <b>练习 · code/14-gorm/</b>
     <ol>
-      <li>sqlite + AutoMigrate 建 Device 表，插入 3 条</li>
-      <li>四式全跑：First / Where().Find() / Update / Delete</li>
-      <li>给 Name 加 unique tag，插重复值看 err，练习 errors 处理</li>
+      <li>sqlite + AutoMigrate 建 Device 表，插入 3 条，打印自增 ID 回填</li>
+      <li>四式全跑：First / Where().Find() / Update / Delete，每步 db.Debug() 看真实 SQL</li>
+      <li>给 Name 加 unique tag，插重复值看 err，用 errors.Is 判 gorm.ErrRecordNotFound</li>
+      <li>查一条不存在的：First 返回 ErrRecordNotFound，errors.Is 验证</li>
     </ol>
   </div>
 
@@ -265,7 +350,12 @@ model/entity/      struct + 双 tag（阶段 2 精读过的 Site）</code></pre>
       <li>统一错误响应：定义 ErrCode 常量 + 错误码函数（抄 smb errcode 思路）</li>
       <li>加一个中间件打请求日志（requestID 随机生成塞 header）</li>
     </ol>
-    <p>验收标准：curl/浏览器全流程走通 + 每层职责清晰（controller 无业务逻辑、service 无 SQL）。</p>
+    <p>验收标准：curl/浏览器全流程走通 + 每层职责清晰（controller 无业务逻辑、service 无 SQL）：</p>
+    <pre><code>curl http://localhost:8080/api/devices            # 列表
+curl -X POST .../api/devices -d '{"name":"AP9"}'  # 新增
+curl .../api/devices?q=ap                        # 模糊查询
+curl -X PATCH .../api/devices/1 -d '{"name":"AP9x"}'
+curl -X DELETE .../api/devices/1</code></pre>
   </div>
   <div class="callout back">
     <b>back 对照</b>

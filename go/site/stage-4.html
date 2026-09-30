@@ -28,7 +28,7 @@
       </ul>
     </details></li>
     <li><details>
-      <summary><a href="stage-2.html">阶段 2 · 核心数据结构</a><em class="st doing">进行中</em></summary>
+      <summary><a href="stage-2.html">阶段 2 · 核心数据结构</a><em class="st done">完成</em></summary>
       <ul class="sub">
         <li><a href="stage-2.html#checklist">章节清单</a></li>
         <li><a href="stage-2.html#l1">第一课 · 数组与切片</a></li>
@@ -38,7 +38,7 @@
       </ul>
     </details></li>
     <li><details>
-      <summary><a href="stage-3.html">阶段 3 · 方法接口与错误处理</a></summary>
+      <summary><a href="stage-3.html">阶段 3 · 方法接口与错误处理</a><em class="st doing">进行中</em></summary>
       <ul class="sub">
         <li><a href="stage-3.html#checklist">章节清单</a></li>
         <li><a href="stage-3.html#l1">第一课 · 方法与组合</a></li>
@@ -125,44 +125,74 @@
   <h2 id="l1">第一课 · goroutine 与 channel <span class="chip todo">讲义就绪 · 未开课</span></h2>
   <p class="sub">覆盖 ch26 上半。练习落在 code/09-goroutine/。</p>
 
-  <h3>1. goroutine：go 一个函数就是并发</h3>
-  <pre><code>go doWork("task1")      // 加个 go 前缀，这个函数就跑在新协程里了
-go func() {             // 匿名函数版本
+  <h3>1. goroutine：go 一个函数就是并发（完整版）</h3>
+  <pre><code>func worker(id int) {
+    fmt.Printf("协程 %d 开工\n", id)
+}
+
+func main() {
+    for i := 1; i &lt;= 5; i++ {
+        go worker(i)          // 加个 go 前缀 → 这个函数跑在新协程里，立即返回继续循环
+    }
+    fmt.Println("main 已经跑完了，不等它们")
+    // ← 大概率一个协程都没打印：main 协程退出，其他协程直接陪葬
+}</code></pre>
+  <pre><code>go func() {                  // 匿名函数版本（back 里最常见的形态）
     fmt.Println("并发干活")
-}()</code></pre>
-  <p>协程是 Go 运行时调度的轻量线程（初始栈 2KB），百万个不费劲。main 所在协程退出时，其他协程直接陪葬——所以需要「等」的机制。</p>
+}()                           // 注意：go 定义完要立刻 () 调起来</code></pre>
+  <p>协程是 Go 运行时调度的轻量线程（初始栈 2KB，对比系统线程 1MB），百万个不费劲。两个铁律：<b>main 退出全家陪葬</b>（所以需要「等」的机制——下节课 WaitGroup）；<b>调度顺序不可预测</b>（把上面 `main 已经跑完了` 换成 `time.Sleep(time.Second)` 多跑几次，1~5 的打印顺序每次不同——goroutine 不是排队执行）。</p>
 
-  <h3>2. channel：协程间的传值管道</h3>
-  <pre><code>ch := make(chan int)        // 无缓冲
-ch &lt;- 42                    // 发送（没有接收者就阻塞等待）
-v := &lt;-ch                   // 接收（没有数据就阻塞等待）
+  <h3>2. channel：协程间的传值管道（完整版）</h3>
+  <pre><code>// 生产者消费者：最经典的完整模型
+func produce(ch chan&lt;- string) {       // chan&lt;- 只发送（方向限定，阶段 3 学的类型语法）
+    for i := 1; i &lt;= 3; i++ {
+        ch &lt;- fmt.Sprintf("任务%d", i)  // 发送：没接收者就阻塞等
+    }
+    close(ch)                          // 生产完关闭——告诉消费者「没有更多了」
+}
 
-ch2 := make(chan int, 10)   // 带缓冲：装满前发送不阻塞
+func main() {
+    ch := make(chan string)            // 无缓冲：发送和接收必须同时就位（交接棒）
+    go produce(ch)
 
-close(ch)                   // 关闭后 range 读完历史数据即退出
-for v := range ch { }</code></pre>
-  <p>口诀：<b>不要通过共享内存来通信，而要通过通信来共享内存</b>——数据从一个协程「发」给另一个，而不是两个协程抢同一个变量。</p>
+    for task := range ch {             // range 持续接收；channel 关闭且读空后自动退出循环
+        fmt.Println("收到:", task)      // 任务1 / 任务2 / 任务3（顺序稳定——单个 channel 保证次序）
+    }
+    fmt.Println("生产者已关闭，消费者退出")
+}</code></pre>
+  <pre><code>ch2 := make(chan int, 3)   // 带缓冲：先备 3 个格子
+ch2 &lt;- 1; ch2 &lt;- 2; ch2 &lt;- 3   // 装满前发送不阻塞
+// ch2 &lt;- 4                  // ← 第 4 个阻塞，直到有人取走一个
+
+// 关闭后的接收语义（三段论）：
+v, ok := &lt;-ch2            // comma-ok 第三兄弟！map 判存在/类型断言/channel 判开没关
+                           // 关闭后：先收到历史值 (v, true)，收完收到零值 (0, false)
+// ch2 &lt;- 9                // ← 向已关闭 channel 发送 = panic（关闭由发送方做，接收方永远别 close）</code></pre>
+  <p>口诀：<b>不要通过共享内存来通信，而要通过通信来共享内存</b>——数据从一个协程「发」给另一个（值拷贝过去），而不是两个协程抢同一个变量。nil 容忍表补最后一行（阶段 2 那张表的缺项）：<b>nil channel 收发都永久阻塞</b>——不 panic、死等，select 里常用来「关掉」某个分支。</p>
 
   <h3>3. JS 对照</h3>
   <div class="callout js">
     <b>JS 对照</b>
-    <p><b>调度模型</b>：JS 单线程事件循环，async 是「协作式」排队；goroutine 多核真并行、抢占式调度——失去「反正单线程不会打架」的安全感。</p>
-    <p><b>取值方式</b>：JS 异步拿结果靠 Promise.then/await（注册回调，不阻塞）；<code>v := &lt;-ch</code> 是<b>真的阻塞等待</b>——协程挂起让出 CPU，值到了再醒。channel ≈ MessageChannel + 阻塞语义。</p>
-    <p><b>易踩坑 ×2</b>：① main 不等就退出，协程白跑（下节课 WaitGroup 收口）；② 无缓冲 channel 同一协程自发自收 = 死锁。</p>
+    <p><b>调度模型</b>：JS 单线程事件循环，async 是「协作式」排队（一个死循环全卡）；goroutine 多核真并行、抢占式——失去「反正单线程不会打架」的安全感。</p>
+    <p><b>取值方式</b>：JS 异步拿结果靠 Promise.then/await（注册回调，不阻塞）；<code>v := &lt;-ch</code> 是<b>真的阻塞等待</b>——协程挂起让出 CPU，值到了再醒。channel ≈ MessageChannel + 阻塞语义；「交接棒」式同步 ≈ 无缓冲 channel。</p>
+    <p><b>闭包捕获坑（JS 老朋友）</b>：<code>for i := ... { go func(){ fmt.Println(i) }() }</code> 在 Go 1.22 前所有协程共享循环变量 i（打印全是最后一个值）——和 JS 的 <code>var</code> 循环捕获坑一模一样，Go 1.22 起才修成每次迭代新变量（≈ JS 的 let）。back 里的防御写法是老风格但永远正确：<code>go func(id int){...}(i)</code> 参数传值。</p>
+    <p><b>易踩坑 ×2</b>：① main 不等就退出，协程白跑；② 无缓冲 channel 同一协程自发自收 = 死锁（fatal error: all goroutines are asleep）。</p>
   </div>
 
   <h3>4. back 真实代码</h3>
   <div class="callout back">
     <b>back 真实代码</b>
     <p>csp 主进程的经典三件套（go func + channel + 阻塞挂起）：</p>
-    <pre><code>go func() {
-    // 后台协程：收消息、干活、结果送进 channel
-    for msg := range inputCh {
+    <pre><code>mtchal := make(chan [2]string, 10)   // 带缓冲 channel——元素还是数组！（阶段 2：chan 的元素类型可以是任何类型）
+forever := make(chan bool)           // 永远不会被发送的 channel
+
+go func() {
+    for msg := range inputCh {       // 后台协程：收消息、干活
         resultCh &lt;- handle(msg)
     }
 }()
 
-&lt;-forever   // 主协程阻塞等一个永远不来的值 → 进程常驻不退出</code></pre>
+&lt;-forever   // 主协程阻塞等一个永远不来的值 → 进程常驻不退出（网管服务的保命写法）</code></pre>
     <p>smb 的 MQTT 消息处理同款思路：网络协程收消息 → channel → 工作协程处理。</p>
   </div>
 
@@ -170,66 +200,103 @@ for v := range ch { }</code></pre>
   <div class="callout ex">
     <b>练习 · code/09-goroutine/</b>
     <ol>
-      <li>起 10 个协程并发打印各自编号 + 主协程 sleep 1 秒观察（体会「不等就跑丢」）</li>
+      <li>起 10 个协程并发打印各自编号 + 主协程 sleep 1 秒观察（体会「不等就跑丢」+ 顺序乱）</li>
       <li>无缓冲 channel：主协程发、子协程收，打印顺序证明「发送阻塞到有人收」</li>
       <li>带缓冲：cap 3 的 channel 连发 5 个，观察第 4 个阻塞</li>
-      <li>生产者消费者：生产协程 close 后，消费协程 range 退出</li>
+      <li>生产者消费者：生产协程 close 后，消费协程 range 退出（照本课完整版手敲）</li>
+      <li>comma-ok：从已关闭 channel 读，先收 (值, true) 再收 (零值, false)</li>
+      <li>向已关闭 channel 发送，亲眼看一次 panic</li>
     </ol>
   </div>
 
   <h2 id="l2">第二课 · sync 包与 select <span class="chip todo">讲义就绪 · 未开课</span></h2>
   <p class="sub">ch26 下半（教程较浅，对照 back 补齐）。练习落在 code/10-channel/。</p>
 
-  <h3>1. WaitGroup：等一群协程干完</h3>
-  <pre><code>var wg sync.WaitGroup
-for i := 0; i &lt; 10; i++ {
-    wg.Add(1)             // 计数 +1
-    go func(id int) {
-        defer wg.Done()   // 干完 -1（defer 保证 panic 也减）
-        work(id)
-    }(i)
-}
-wg.Wait()                 // 阻塞到计数归零</code></pre>
-
-  <h3>2. Mutex：给共享变量上锁</h3>
-  <pre><code>var (
-    counter int
-    mu      sync.Mutex
-)
-
-mu.Lock()
-counter++        // 不是原子的！不加锁并发下会丢更新
-mu.Unlock()</code></pre>
-  <p>验证手段：<code>go run -race main.go</code>——竞态检测器，报 DATA RACE 就是锁没加对。</p>
-
-  <h3>3. select：多路复用</h3>
-  <pre><code>select {
-case v := &lt;-ch1:
-    fmt.Println("ch1 来了", v)
-case ch2 &lt;- 42:
-    fmt.Println("ch2 发出去了")
-case &lt;-time.After(3 * time.Second):
-    fmt.Println("超时")
+  <h3>1. WaitGroup：等一群协程干完（完整版）</h3>
+  <pre><code>func main() {
+    var wg sync.WaitGroup
+    for i := 1; i &lt;= 5; i++ {
+        wg.Add(1)                    // 计数 +1（在起协程<b>之前</b> Add）
+        go func(id int) {            // 把 i 当参数传值进闭包——阶段 2 值拷贝知识复用
+            defer wg.Done()          // 干完 -1（defer 保证 panic 也减，计数不泄漏）
+            time.Sleep(time.Duration(id*100) * time.Millisecond)
+            fmt.Printf("协程 %d 完成\n", id)
+        }(i)
+    }
+    wg.Wait()                        // 阻塞到计数归零
+    fmt.Println("全部干完，main 安全退出")
 }</code></pre>
+  <p>三件套口诀：<b>Add 在前、Done 在 defer、Wait 收尾</b>。Add 放进协程体内是竞态（main 可能先 Wait 了计数还是 0）。</p>
+
+  <h3>2. Mutex：给共享变量上锁（完整版）</h3>
+  <pre><code>func main() {
+    var (
+        counter int
+        mu      sync.Mutex
+    )
+    var wg sync.WaitGroup
+    for i := 0; i &lt; 1000; i++ {
+        wg.Add(1)
+        go func() {
+            defer wg.Done()
+            mu.Lock()                // ← 注释掉这两行跑 -race，看结果小于 1000
+            counter++                // 读-改-写三步，不是原子的！
+            mu.Unlock()
+        }()
+    }
+    wg.Wait()
+    fmt.Println(counter)             // 加锁：恒 1000；不加锁：大概率 &lt;1000（静默丢更新）
+}</code></pre>
+  <p>验证手段：<code>go run -race main.go</code>——竞态检测器，报 <code>WARNING: DATA RACE</code> 就是锁没加对。注意<code>go run</code> 默认不查竞态，必须显式 -race（JS 世界没有对应物——单线程根本不需要）。</p>
+
+  <h3>3. select：多路复用（完整版）</h3>
+  <pre><code>func main() {
+    ch := make(chan string)
+    go func() {
+        time.Sleep(2 * time.Second)   // 故意慢
+        ch &lt;- "结果来了"
+    }()
+
+    select {
+    case v := &lt;-ch:                   // 谁先就绪走谁
+        fmt.Println("收到:", v)
+    case &lt;-time.After(1 * time.Second):   // 1 秒兜底计时器
+        fmt.Println("超时放弃")          // ← 这条先到：打印这个，main 退出
+    }
+}</code></pre>
+  <p>select 每次随机挑一个<b>已就绪</b>的分支执行；都没就绪就阻塞（有 default 则立即走 default）。<code>time.After</code> 每次调用造一个新计时器 channel——超时控制的标配。把 sleep 改成 500ms 再跑，「收到」分支就赢了。</p>
 
   <h3>4. JS 对照</h3>
   <div class="callout js">
     <b>JS 对照</b>
-    <p><b>数据竞争是 JS 不存在的概念</b>——单线程下 counter++ 永远安全。Go 多核并行下两个协程同时 counter++ 会互相覆盖丢更新——不是崩溃，是<b>静默算错</b>，比崩溃可怕。原则：变量被多个协程读写 → 要么锁、要么收拢到单协程经 channel 访问。</p>
-    <p>select ≈ <code>Promise.race</code>（谁先到处理谁，time.After 分支 = 超时兜底）；WaitGroup ≈ <code>Promise.all</code>。</p>
+    <p><b>数据竞争是 JS 不存在的概念</b>——单线程下 counter++ 永远安全（Worker 也不共享普通变量）。Go 多核并行下两个协程同时 counter++ 会互相覆盖丢更新——不是崩溃，是<b>静默算错</b>，比崩溃可怕（计数少了、统计歪了，没人报错）。原则：变量被多个协程读写 → 要么锁、要么收拢到单协程经 channel 访问。</p>
+    <p>select ≈ <code>Promise.race</code>（谁先到处理谁，time.After 分支 = 超时兜底）；WaitGroup ≈ <code>Promise.all</code>。微妙差异：Promise.race 输了的那条 Promise 还在跑（只是结果被忽略）；select 没选中的分支没副作用——配合 context 取消才能真正掐掉慢任务（阶段 7 见 smb 实战）。</p>
   </div>
 
   <h3>5. back 对照 + 练习</h3>
   <div class="callout back">
-    <b>back 真实代码</b>
-    <p>smb/svac 的 MQTT 客户端、定时任务靠 WaitGroup 管理协程生命周期；net_scan 的后台扫描 scheduler 用 channel + select + context 做可取消任务。</p>
+    <b>back 真实代码 ×2</b>
+    <p>smb 并发统计——service/liststats/concurrent.go:29，聚合多个统计源、并发拉取、超时兜底（本课三件套全用上）：</p>
+    <pre><code>ctx, cancel = context.WithTimeout(ctx, timeout)   // 超时控制（context 是 select 的实战搭子）
+defer cancel()
+var wg sync.WaitGroup
+for _, fn := range fns {
+    wg.Add(1)
+    go func(f func(context.Context)) {
+        defer wg.Done()
+        f(ctx)                                       // 每个统计源并发跑
+    }(fn)
+}
+wg.Wait()                                            // 全部回来（或超时）再聚合</code></pre>
+    <p>net_scan 的 SSH 客户端（ssh_client/ssh.go:401）用 select 做命令执行超时；remotessh、scheduler 的可取消任务靠 channel + select + context 组合——「select 管『谁先到』，context 管『喊停』」。</p>
   </div>
   <div class="callout ex">
     <b>练习 · code/10-channel/</b>
     <ol>
       <li>用 WaitGroup 重写练习 1 的 10 协程等待（对比 sleep 土办法）</li>
       <li>竞态实验：1000 个协程不加锁 counter++，跑 -race 看 DATA RACE + 结果小于 1000；加 Mutex 修复</li>
-      <li>select 超时：channel 慢发送 + time.After(1s) 分支，观察超时兜底</li>
+      <li>select 超时：channel 慢发送 + time.After(1s) 分支，观察超时兜底；改快后再看正常分支</li>
+      <li>闭包坑：go func(){打印 i}() 不传参直接捕获，多跑几次看输出（Go 1.27 已修复为类 let 行为，但 back 老代码防御式传参随处可见）</li>
       <li>思考题：为什么 counter++ 不是原子的？（提示：读-改-写三步）</li>
     </ol>
     <p>完成 = 阶段 4 结业。</p>

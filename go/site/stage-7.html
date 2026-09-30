@@ -28,7 +28,7 @@
       </ul>
     </details></li>
     <li><details>
-      <summary><a href="stage-2.html">阶段 2 · 核心数据结构</a><em class="st doing">进行中</em></summary>
+      <summary><a href="stage-2.html">阶段 2 · 核心数据结构</a><em class="st done">完成</em></summary>
       <ul class="sub">
         <li><a href="stage-2.html#checklist">章节清单</a></li>
         <li><a href="stage-2.html#l1">第一课 · 数组与切片</a></li>
@@ -38,7 +38,7 @@
       </ul>
     </details></li>
     <li><details>
-      <summary><a href="stage-3.html">阶段 3 · 方法接口与错误处理</a></summary>
+      <summary><a href="stage-3.html">阶段 3 · 方法接口与错误处理</a><em class="st doing">进行中</em></summary>
       <ul class="sub">
         <li><a href="stage-3.html#checklist">章节清单</a></li>
         <li><a href="stage-3.html#l1">第一课 · 方法与组合</a></li>
@@ -108,45 +108,78 @@
   <h2 id="l1">第一课 · uber/fx 依赖注入 <span class="chip todo">讲义就绪 · 未开课</span></h2>
   <p class="sub">读懂 boot.go 里的 container.Add / fx.Invoke。</p>
 
-  <pre><code>// smb boot.go 的骨架（简化）
-container := cmds.NewRoot(...)
-container.Add(
-    config.Module(),      // 每个模块声明自己提供什么
-    pgsql.Module(),
-    controller.Module(),
-)
-container.Invoke(func(eng *gin.Engine, cs []controller.Controller) {
-    // fx 自动按类型把依赖注进来 → 注册路由 → 启动
-})</code></pre>
-  <p>fx 核心两件事：① 扫描所有 Module 声明的「提供者」（构造函数）；② 按参数类型自动连线组装，缺依赖/循环依赖启动时报错。相当于一个自动 new 的总装车间。</p>
+  <pre><code>// smb boot.go 原文骨架（cmd/boot.go:33——13 个 Module 的总装清单）
+func main() {
+    cfg := &amp;config.Config{}
+    cmds.NewRoot(entity.APP_NAME, cfg, func(cfg interface{}, container *di.DI) error {
+        container.Add(health.Module())       // 每个模块声明「我提供什么」
+        container.Add(mqttsub.Module())      // （构造函数清单 = Provide）
+        container.Add(mqtt.Module())
+        container.Add(redis.NormalModule())
+        container.Add(pgsql.Module())        // 数据库连接
+        container.Add(postgrerepo.Module())  // 泛型仓储
+        container.Add(security.Module())
+        container.Add(service.Module())
+        container.Add(controller.Module())
+
+        container.Add(fx.Invoke(func(            // 总装完的启动动作：
+            params StartupParams,                // 按类型自动注入依赖
+            rest *api.RestServer,
+            offlineServer *offline.OfflineService,
+        ) {
+            offlineServer.Start()                // 起后台服务、注册路由、监听端口
+            ...
+        }))
+        return nil
+    })
+}</code></pre>
+  <p>fx 核心两件事：① 扫描所有 Module 声明的「提供者」（构造函数，如 <code>NewPostgreSqlDB[T]</code>）；② 按参数类型自动连线组装——service 需要 repo 就自动递归构造 repo 需要的 db，缺依赖/循环依赖<b>启动时就报错</b>（不是运行时才炸）。相当于一个自动 new 的总装车间。</p>
+  <p><b>没有 DI 的世界你早就见过</b>：net_scan 的 main.go 就是手动 DI——<code>storage.InitDB(cfg)</code> → <code>api.RegisterRoutes(r)</code>，每层依赖自己传。项目小这么写最直白（所以 net_scan 好读）；smb 有 30+ controller、几十个 service 手动穿针引线会疯，fx 把「谁需要谁」从 main 挪到各模块的 di.go 里声明。</p>
   <div class="callout js">
     <b>JS 对照</b>
-    <p>≈ Angular 的 DI 容器（按 token 注入）或 NestJS 的 Provider。没有 DI 时你得在 main 里手动 new Repo → new Service(repo) → new Controller(service) 一层层穿针引线（net_scan 就是手动的，所以它好读；smb 服务多，用 fx 省心）。</p>
+    <p>≈ Angular 的 DI 容器（按 token 注入）或 NestJS 的 Provider。前端 boy 的体会：没有 DI 时你得在 main 里手动 new Repo → new Service(repo) → new Controller(service) 一层层穿针引线——Angular 之所以那么设计，和 smb 用 fx 是同一个理由：依赖太多。</p>
   </div>
   <div class="callout back">
-    <b>back 对照</b>
-    <p>gobase 的 modules/quick-start/di.go 是 fx 封装的启动框架；smb 与 svac 的 boot.go 都靠它。读法：先看每个包的 di.go（Module() 里 Provide 了什么），再回 boot.go 看总装清单。</p>
+    <b>back 对照 · 读法路线</b>
+    <p>gobase 的 modules/quick-start/di.go 是 fx 封装的启动框架；smb 与 svac 的 boot.go 都靠它。读法：先看每个包的 di.go（Module() 里 Provide 了什么构造函数），再回 boot.go 看总装清单——「一个 Module = 一类能力」：mqtt 是设备消息、pgsql 是数据库、security 是登录鉴权、controller 是路由层。改需求时定位入口：先找功能在哪个 Module，再进包里读。</p>
   </div>
 
   <h2 id="l2">第二课 · 泛型仓储精读 <span class="chip todo">讲义就绪 · 未开课</span></h2>
-  <p class="sub">gobase/modules/pgsql/repository.go 逐方法拆解。</p>
-  <p>阶段 3 认过 <code>PostgreSqlRepo[T]</code> 的脸，这节读实现：Insert 怎么落到 gorm、FindByWhere 的 where 参数为什么是 <code>...interface{}</code>（可变参数 + 任意类型占位）、事务怎么在泛型层封装。精读目标：service 层一行 <code>siteRepo.FindByWhere(ctx, "org_id = ?", orgID)</code> 背后发生了什么全部说得清。</p>
+  <p class="sub">gobase/modules/pgsql 逐方法拆解。</p>
+  <p>阶段 3 认过 <code>PostgreSqlRepo[T]</code> 的脸，这节读实现。真实的六个方法（postgresql.go）——service 层手里的全部武器：</p>
+  <pre><code>type PostgreSqlDB[T any] struct { ... }        // T 是实体类型：Site、Organization...
+
+func (psql *PostgreSqlDB[T]) Insert(ctx context.Context, obj *T) error
+func (psql *PostgreSqlDB[T]) DeleteById(ctx context.Context, obj *T) error
+func (psql *PostgreSqlDB[T]) UpdateById(ctx context.Context, obj *T, fields []string) error
+func (psql *PostgreSqlDB[T]) FindById(ctx context.Context, obj *T) (*T, error)
+func (psql *PostgreSqlDB[T]) FindAll(ctx context.Context) ([]*T, error)
+func (psql *PostgreSqlDB[T]) FindByWhere(ctx context.Context, where string, args ...interface{}) ([]*T, error)
+
+func NewPostgreSqlDB[T any](db *gorm.DB) *PostgreSqlDB[T]   // 构造函数：fx 的提供者</code></pre>
+  <p>service 层的真实调用（siteservice.go——一行背后全是这条链）：</p>
+  <pre><code>sites, err := s.siteRepo.FindByWhere(ctx, "site_id = ?", req.SiteID)</code></pre>
+  <p>精读目标（每一问都要能答上）：① Insert 怎么落到 gorm 的 Create、错误怎么包；② FindByWhere 的 <code>args ...interface{}</code> 为什么是可变参数 + 任意类型（阶段 1 可变参数 + 阶段 3 空接口的合体——where 占位符的值什么类型都可能有）；③ UpdateById 的 <code>fields []string</code> 为什么显式传字段名（白名单式更新——防零值字段把数据库覆盖成空）；④ 泛型 + gorm 泛型（gorm 本身也用泛型）两层泛型怎么咬合；⑤ 事务怎么在泛型层封装。读完 <code>siteRepo.FindByWhere(ctx, "org_id = ?", orgID)</code> 背后发生了什么全部说得清。</p>
   <div class="callout js">
     <b>JS 对照</b>
-    <p>≈ 通用的 Repository&lt;T&gt; 基类（TypeORM 的 BaseRepository 同思路），Go 用泛型 + 接口组合达成。</p>
+    <p>≈ 通用的 Repository&lt;T&gt; 基类（TypeORM 的 BaseRepository 同思路），Go 用泛型 + 接口组合达成。差异：smb 的仓储是「泛型实现 + 接口抽象」双层——service 依赖接口（mock 测试用，阶段 5 见过 mockgen 生成），fx 注入实现——三层各司其职。</p>
   </div>
 
   <h2 id="l3">第三课 · casbin 权限与 MQTT <span class="chip todo">讲义就绪 · 未开课</span></h2>
 
   <h3>casbin：RBAC 的落地</h3>
-  <pre><code>enforcer.Enforce(userID, resource, action)   // 用户能不能干这件事</code></pre>
-  <p>casbin 把「谁-能对-什么-做什么」抽象成策略模型（model.conf）+ 策略表；smb 的 security/ 目录是它的封装层（登录、token、中间件一整套）。前端同事熟悉的「菜单权限」在后端就是这一行判断。</p>
+  <pre><code>enforcer.Enforce(userID, resource, action)   // 通用形态：用户能不能干这件事</code></pre>
+  <p>casbin 把「谁-能对-什么-做什么」抽象成策略模型（model.conf）+ 策略表；smb 的 <code>internal/security/casbin/</code> 是它的封装层。真实源码有个值得精读的细节：enforce.go:37 的 <code>e.EnableEnforce(false)</code>——本服务的 enforcer 只做<b>策略读写</b>不做 HTTP 鉴权，角色继承判断由应用层（service/role_inheritance_util.go）补齐。这正是「读真实代码 vs 读教程」的差异所在：smb 的用法是裁剪过的，不是教科书形态。</p>
+  <p>前端同事熟悉的「菜单权限」在后端就是权限判断：casbin 有 JS 版（同一套 model.conf 前后端通用）——你在 smb_web 见过的权限体系，后端就是这套。</p>
 
   <h3>MQTT：设备消息总线</h3>
-  <p>smb 管理的 AC 设备跑在 MQTT 上——设备的 HTTP API 被「HTTP-over-MQTT」代理（apiac 路由组）：前端请求 → smb 转成 MQTT 消息发设备 → 设备回消息 → smb 转回 HTTP 响应。并发课的 channel 在这里全是实战。</p>
+  <p>smb 管理的 AC 设备跑在 MQTT 上——设备的 HTTP API 被「HTTP-over-MQTT」代理（apiac 路由组，restserver.go:53-54 真实存在）：</p>
+  <pre><code>apiac := r.engine.Group(pkg.HTTPAPIAPIAC)    // 前端请求 /api/.../apiac/...
+r.groups[pkg.HTTPAPIAPIAC] = apiac</code></pre>
+  <p>完整链路：前端 HTTP 请求 → smb 转成 MQTT 消息发设备（阶段 4 的 channel 在这里全是实战：网络协程收设备回消息 → channel → 转回 HTTP 响应）→ 设备回消息 → smb 转回 HTTP 响应给前端。精读点：超时控制（设备不回怎么办）、消息路由（哪个响应对应哪个请求——correlation id）。</p>
   <div class="callout js">
     <b>JS 对照</b>
-    <p>casbin 有 JS 版（同一套策略文件前后端通用）；MQTT ≈ WebSocket 的发布/订阅版（topic 就是频道）。</p>
+    <p>casbin 有 JS 版（同一套策略文件前后端通用）；MQTT ≈ WebSocket 的发布/订阅版（topic 就是频道），smb_web 连接的实时推送背后就是这条链。</p>
   </div>
 
   <h2 id="l4">第四课 · 毕业精读：Site 更新全链路 <span class="chip todo">讲义就绪 · 未开课</span></h2>
